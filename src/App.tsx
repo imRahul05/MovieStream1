@@ -8,7 +8,7 @@ import FeaturedMovie from './components/FeaturedMovie';
 import { fetchTrending, fetchTopRated, fetchMovieDetails, searchMovies } from './services/api';
 import type { Movie, MovieDetails } from './types/movie';
 import { useWatchlist } from './hooks/useWatchlist';
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import Footer from './components/Footer';
 
 function App() {
