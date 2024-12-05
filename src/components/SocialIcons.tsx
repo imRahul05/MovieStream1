@@ -2,11 +2,11 @@ import React from 'react';
 import { FaXTwitter, FaFacebook, FaInstagram, FaLinkedin, FaGithub } from 'react-icons/fa6';
 
 const socialLinks = [
-  { icon: FaXTwitter, href: "https://twitter.com/imrahu05", color: "text-white" },
-  { icon: FaFacebook, href: "https://facebook.com", color: "text-blue-600" },
-  { icon: FaInstagram, href: "https://instagram.com/imrahu05", color: "text-pink-400" },
-  { icon: FaLinkedin, href: "https://linkedin.com/in/imrahu05", color: "text-blue-700" },
-  { icon: FaGithub, href: "https://github.com/imrahu05", color: "text-gray-400" },
+  { icon: FaXTwitter, href: "https://x.com/imrahul165", color: "text-white" },
+  { icon: FaFacebook, href: "https://x.com/imrahul165", color: "text-blue-600" },
+  { icon: FaInstagram, href: "https://www.instagram.com/imrahul165", color: "text-pink-400" },
+  { icon: FaLinkedin, href: "https://www.linkedin.com/in/imrahul05/", color: "text-blue-700" },
+  { icon: FaGithub, href: "https://www.github.com/imRahul05", color: "text-gray-400" },
 ];
 
 const SocialIcons: React.FC = () => {

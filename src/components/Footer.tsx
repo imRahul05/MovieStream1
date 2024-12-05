@@ -28,7 +28,7 @@ const Footer: React.FC = () => {
           </div>
           <div className="text-center md:text-right">
             <h4 className="text-xl font-semibold mb-4">Stay Updated</h4>
-            <p className="mb-4">Subscribe to our newsletter for the latest updates and offers.</p>
+            <p className="mb-4">Subscribe to my newsletter.</p>
             <NewsletterForm />
           </div>
         </div>
