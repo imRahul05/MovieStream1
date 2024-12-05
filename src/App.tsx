@@ -9,6 +9,7 @@ import { fetchTrending, fetchTopRated, fetchMovieDetails, searchMovies } from '.
 import type { Movie, MovieDetails } from './types/movie';
 import { useWatchlist } from './hooks/useWatchlist';
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import Footer from './components/Footer';
 
 function App() {
   const [trending, setTrending] = useState<Movie[]>([]);
@@ -167,6 +168,8 @@ function App() {
             onClose={() => setSelectedMovie(null)}
           />
         )}
+
+        <Footer />
       </div>
     </div>
   );
