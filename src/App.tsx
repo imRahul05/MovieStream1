@@ -174,7 +174,7 @@ function App() {
             onClose={() => setSelectedMovie(null)}
           />
         )}
-
+  <SpeedInsights />
         <Footer />
       </div>
     </div>
