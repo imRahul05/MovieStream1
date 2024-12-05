@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SocialIcons from './SocialIcons';
-import NewsletterForm from './NewsletterForm'
+import NewsletterForm from './NewsletterForm';
 import DMCAModal from '../components/DMCAModal';
 
 const Footer: React.FC = () => {
@@ -39,10 +39,11 @@ const Footer: React.FC = () => {
           <p className="mb-4 text-sm text-gray-400">This site does not store any files on our server, we only link to the media which is hosted on 3rd party services.</p>
           <button
             onClick={() => setIsDMCAModalOpen(true)}
-            className="mt-4 bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition-colors duration-300"
+            className="mt-4 bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition-colors duration-300 mr-5"
           >
             DMCA Notice
           </button>
+          
         </div>
       </div>
       <DMCAModal isOpen={isDMCAModalOpen} onClose={() => setIsDMCAModalOpen(false)} />
