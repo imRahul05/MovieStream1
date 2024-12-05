@@ -10,6 +10,7 @@ import type { Movie, MovieDetails } from './types/movie';
 import { useWatchlist } from './hooks/useWatchlist';
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import Footer from './components/Footer';
+import { Analytics } from "@vercel/analytics/react"
 
 function App() {
   const [trending, setTrending] = useState<Movie[]>([]);
@@ -175,6 +176,7 @@ function App() {
           />
         )}
   <SpeedInsights />
+  <Analytics/>
         <Footer />
       </div>
     </div>
