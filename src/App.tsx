@@ -11,6 +11,7 @@ import { useWatchlist } from './hooks/useWatchlist';
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import Footer from './components/Footer';
 import { Analytics } from "@vercel/analytics/react"
+import DevelopmentBanner from './components/DevelopmentBanner'
 
 function App() {
   const [trending, setTrending] = useState<Movie[]>([]);
@@ -72,6 +73,7 @@ function App() {
   const renderContent = () => {
     if (searchResults.length > 0 && currentSection === 'search') {
       return (
+        
         <MovieGrid
           title="Search Results"
           movies={searchResults}
@@ -145,7 +147,6 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-900">
       <Sidebar currentSection={currentSection} onSectionChange={setCurrentSection} />
-      
       <div className="lg:ml-64">
         <header className="bg-gray-800 shadow-lg">
           <div className="container mx-auto px-4 py-6">
@@ -154,13 +155,14 @@ function App() {
                 <Film className="w-8 h-8 text-purple-500" />
                 <h1 className="text-2xl font-bold text-white">MovieStream</h1>
                 <button
-            onClick={() => window.open('https://imrahul05.vercel.app', '_blank')}
-            className="mt-4 py-2 px-3 rounded bg-gradient-to-r from-purple-400 via-pink-500 to-green-500 text-white transition-all duration-500 ease-in-out transform hover:scale-105 ml-5"
-          >
-            Visit My Portfolio
-          </button>
+                  onClick={() => window.open('https://imrahul05.vercel.app', '_blank')}
+                  className="mt-4 py-2 px-3 rounded bg-gradient-to-r from-purple-400 via-pink-500 to-green-500 text-white transition-all duration-500 ease-in-out transform hover:scale-105 ml-5"
+                >
+                  Visit My Portfolio
+                </button>
               </div>
             </div>
+            <DevelopmentBanner />
             <SearchBar onSearch={handleSearch} />
           </div>
         </header>
@@ -175,8 +177,8 @@ function App() {
             onClose={() => setSelectedMovie(null)}
           />
         )}
-  <SpeedInsights />
-  <Analytics/>
+        <SpeedInsights />
+        <Analytics />
         <Footer />
       </div>
     </div>
