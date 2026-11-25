@@ -1,36 +1,46 @@
 import React, { useState } from 'react';
+import { Check, ArrowRight } from 'lucide-react';
 
 const NewsletterForm: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement newsletter subscription logic
-    console.log('Subscribed:', email);
+    if (!email.trim()) return;
+    setSubscribed(true);
     setEmail('');
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="mt-6">
-      <div className="flex flex-col sm:flex-row justify-center items-center">
-        <input
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full sm:w-64 px-4 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
-          required
-        />
-        <button
-          type="submit"
-          className="w-full sm:w-auto mt-2 sm:mt-0 px-6 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors duration-300"
-        >
-          Subscribe
-        </button>
+  if (subscribed) {
+    return (
+      <div className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-elevated px-4 py-2.5 text-xs font-medium text-foreground">
+        <Check className="h-4 w-4 text-emerald-500" />
+        <span>You&rsquo;re on the list! Thanks for subscribing.</span>
       </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
+      <input
+        type="email"
+        placeholder="you@example.com"
+        aria-label="Email address for newsletter"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="flex-1 h-10 rounded-full border border-border bg-surface-elevated px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+        required
+      />
+      <button
+        type="submit"
+        className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-brand hover:bg-brand-hover px-5 text-xs font-semibold text-brand-foreground transition-colors cursor-pointer shrink-0"
+      >
+        <span>Subscribe</span>
+        <ArrowRight className="h-3.5 w-3.5" />
+      </button>
     </form>
   );
 };
 
 export default NewsletterForm;
-

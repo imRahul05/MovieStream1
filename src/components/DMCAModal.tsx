@@ -1,4 +1,13 @@
 import React from 'react';
+import { X, ShieldAlert } from 'lucide-react';
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@ui-sdk/react/dialog';
 
 interface DMCAModalProps {
   isOpen: boolean;
@@ -6,39 +15,73 @@ interface DMCAModalProps {
 }
 
 const DMCAModal: React.FC<DMCAModalProps> = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50">
-      <div className="bg-gray-900 text-white rounded-lg p-8 max-w-2xl max-h-[80vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4">DMCA Notice</h2>
-        <p className="mb-4">
-          We take the intellectual property rights of others seriously and require that our users do the same. The Digital Millennium Copyright Act (DMCA) established a process for addressing claims of copyright infringement. If you believe that any content on our website is infringing upon your copyrights, please send us an email. Please allow up to 2-5 business days for a response.
-        </p>
-        <h3 className="text-xl font-semibold mb-2">DMCA Report requirements:</h3>
-        <ul className="list-disc list-inside mb-4">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogBackdrop className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm transition-opacity duration-200 data-starting-style:opacity-0 data-ending-style:opacity-0" />
+      <DialogContent className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-1.5rem)] max-w-2xl max-h-[85dvh] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border-strong bg-surface p-6 sm:p-8 text-foreground shadow-2xl transition-all duration-200 data-starting-style:opacity-0 data-starting-style:scale-95 data-ending-style:opacity-0 data-ending-style:scale-95">
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/15 text-brand">
+              <ShieldAlert className="h-5 w-5" />
+            </span>
+            <DialogTitle className="font-display text-xl font-bold text-foreground">
+              DMCA Notice
+            </DialogTitle>
+          </div>
+          <DialogClose
+            aria-label="Close DMCA Notice"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </DialogClose>
+        </div>
+
+        <DialogDescription className="text-sm leading-relaxed text-muted-foreground mb-5">
+          We take the intellectual property rights of others seriously and require that our users do the same. The Digital Millennium Copyright Act (DMCA) established a process for addressing claims of copyright infringement. If you believe that any content on our website is infringing upon your copyrights, please send us an email. Please allow up to 2–5 business days for a response.
+        </DialogDescription>
+
+        <h3 className="font-display text-sm font-semibold uppercase tracking-wider text-foreground mb-2.5">
+          DMCA Report Requirements
+        </h3>
+        <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground mb-5">
           <li>A description of the copyrighted work that you claim is being infringed;</li>
-          <li>A description of the material you claim is infringing and that you want removed or access to which you want disabled with a URL and proof you are the original owner or other location of that material;</li>
+          <li>
+            A description of the material you claim is infringing and that you want removed or access to which you want disabled with a URL and proof you are the original owner;
+          </li>
           <li>Your name, title (if acting as an agent), address, telephone number, and email address;</li>
-          <li>The following statements:</li>
-          <ul className="list-disc list-inside ml-4">
-            <li>"I have a good faith belief that the use of the copyrighted material I am complaining of is not authorized by the copyright owner, its agent, or the law (e.g., as a fair use)"</li>
-            <li>"The information in this notice is accurate and, under penalty of perjury, I am the owner, or authorized to act on behalf of the owner, of the copyright or of an exclusive right that is allegedly infringed"</li>
-            <li>"I understand that I am subject to legal action upon submitting a DMCA request without solid proof."</li>
-          </ul>
-          <li>An electronic or physical signature of the owner of the copyright or a person authorized to act on the owner's behalf.</li>
+          <li>
+            The following statements:
+            <ul className="list-disc pl-5 mt-1.5 space-y-1">
+              <li>
+                &ldquo;I have a good faith belief that the use of the copyrighted material I am complaining of is not authorized by the copyright owner, its agent, or the law (e.g., as a fair use).&rdquo;
+              </li>
+              <li>
+                &ldquo;The information in this notice is accurate and, under penalty of perjury, I am the owner, or authorized to act on behalf of the owner, of the copyright or of an exclusive right that is allegedly infringed.&rdquo;
+              </li>
+              <li>
+                &ldquo;I understand that I am subject to legal action upon submitting a DMCA request without solid proof.&rdquo;
+              </li>
+            </ul>
+          </li>
+          <li>
+            An electronic or physical signature of the owner of the copyright or a person authorized to act on the owner&rsquo;s behalf.
+          </li>
         </ul>
-        <p className="mb-4">Contact: dmca@coen.ovh</p>
-        <button
-          onClick={onClose}
-          className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition-colors duration-300"
-        >
-          Close
-        </button>
-      </div>
-    </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border pt-4">
+          <p className="text-xs font-mono text-muted-foreground">
+            Contact:{' '}
+            <a href="mailto:dmca@coen.ovh" className="text-foreground underline hover:text-brand">
+              dmca@coen.ovh
+            </a>
+          </p>
+          <DialogClose className="inline-flex items-center justify-center rounded-full bg-brand hover:bg-brand-hover px-5 py-2 text-xs font-semibold text-brand-foreground transition-colors cursor-pointer">
+            Close Notice
+          </DialogClose>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
 export default DMCAModal;
-

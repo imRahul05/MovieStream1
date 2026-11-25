@@ -1,55 +1,109 @@
 import React, { useState } from 'react';
+import { Film, ShieldAlert } from 'lucide-react';
 import SocialIcons from './SocialIcons';
 import NewsletterForm from './NewsletterForm';
-import DMCAModal from '../components/DMCAModal';
+import DMCAModal from './DMCAModal';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  onNavigate?: (section: string) => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const [isDMCAModalOpen, setIsDMCAModalOpen] = useState(false);
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gradient-to-r from-gray-800 to-gray-900 text-white py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-4">MovieStream</h3>
-            <p className="mb-4">Bringing the cinema experience to your home.</p>
+    <footer className="mt-12 border-t border-border bg-surface text-foreground pb-20 lg:pb-0">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+          {/* Brand Column */}
+          <div className="md:col-span-5 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-brand-foreground">
+                <Film className="h-4 w-4" />
+              </span>
+              <span className="font-display text-lg font-extrabold tracking-tight">
+                Movie<span className="text-brand">Stream</span>
+              </span>
+            </div>
+            <p className="text-sm leading-relaxed text-muted-foreground max-w-sm">
+              Bringing the cinema experience home. Discover trending releases, critically acclaimed classics, and curate your personal watchlist.
+            </p>
             <SocialIcons />
           </div>
-          <div className="text-center">
-            <h4 className="text-xl font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2">
-              <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Home</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Movies</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">TV Shows</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">About Us</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Contact</a></li>
+
+          {/* Quick Links */}
+          <div className="md:col-span-3 space-y-3">
+            <h4 className="font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Explore
+            </h4>
+            <ul className="space-y-2 text-sm">
+              {[
+                { id: 'home', label: 'Home' },
+                { id: 'trending', label: 'Trending Now' },
+                { id: 'top-rated', label: 'Top Rated' },
+                { id: 'watchlist', label: 'My Watchlist' },
+              ].map((link) => (
+                <li key={link.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onNavigate?.(link.id);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
-          <div className="text-center md:text-right">
-            <h4 className="text-xl font-semibold mb-4">Stay Updated</h4>
-            <p className="mb-4">Subscribe to my newsletter.</p>
+
+          {/* Newsletter */}
+          <div className="md:col-span-4 space-y-3">
+            <h4 className="font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Stay Updated
+            </h4>
+            <p className="text-sm text-muted-foreground">
+              Get weekly picks of top-rated films and upcoming cinema releases.
+            </p>
             <NewsletterForm />
           </div>
         </div>
-        <hr className="my-8 border-gray-700" />
-        <div className="text-center">
-          <p className="mb-4">&copy; {currentYear} MovieStream. All rights reserved.</p>
-          <p className="mb-4">Made with ❤️ by Rahul</p>
-          <p className="mb-4 text-sm text-gray-400">This site does not store any files on our server, we only link to the media which is hosted on 3rd party services.</p>
+
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground">
+          <div className="space-y-1 text-center sm:text-left">
+            <p>
+              &copy; {currentYear} MovieStream · Crafted by{' '}
+              <a
+                href="https://imrahul05.vercel.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-foreground hover:text-brand transition-colors"
+              >
+                Rahul
+              </a>
+            </p>
+            <p className="text-[11px] text-muted-foreground/80">
+              This site does not store any files on our server; media is linked from 3rd-party services.
+            </p>
+          </div>
+
           <button
+            type="button"
             onClick={() => setIsDMCAModalOpen(true)}
-            className="mt-4 bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition-colors duration-300 mr-5"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-elevated px-3.5 py-1.5 text-xs font-medium text-muted-foreground hover:border-brand/40 hover:text-brand transition-colors cursor-pointer"
           >
-            DMCA Notice
+            <ShieldAlert className="h-3.5 w-3.5" />
+            <span>DMCA Notice</span>
           </button>
-          
         </div>
       </div>
+
       <DMCAModal isOpen={isDMCAModalOpen} onClose={() => setIsDMCAModalOpen(false)} />
     </footer>
   );
 };
 
 export default Footer;
-

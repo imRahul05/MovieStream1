@@ -1,24 +1,47 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" suppressHydrationWarning>
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Movie-Stream</title>
-    <link rel="icon" type="image/png" href="https://img.icons8.com/?size=100&id=sGQrCz1ti5x7&format=png&color=000000" />
-    <meta name="description" content="Stream your favorite movies online. Watch the latest releases and classic films.">
-    <meta name="keywords" content="movies, streaming, online movies, watch movies, latest movies, classic films">
-    <meta name="author" content="Movie-Stream">
-    <meta property="og:title" content="Movie-Stream">
-    <meta property="og:description" content="Stream your favorite movies online. Watch the latest releases and classic films.">
-    <meta property="og:image" content="https://img.icons8.com/?size=100&id=sGQrCz1ti5x7&format=png&color=000000">
-    <meta property="og:url" content="https://movie-stream-phi.vercel.app">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Movie-Stream">
-    <meta name="twitter:description" content="Stream your favorite movies online. Watch the latest releases and classic films.">
-    <meta name="twitter:image" content="https://img.icons8.com/?size=100&id=sGQrCz1ti5x7&format=png&color=000000">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>MovieStream — Cinema Discovery & Streaming</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://img.icons8.com/?size=100&id=sGQrCz1ti5x7&format=png&color=000000"
+    />
+    <meta
+      name="description"
+      content="Discover, search, and stream trending movies, top-rated cinema, trailers, and curate your personal watchlist."
+    />
+    <meta
+      name="keywords"
+      content="movies, streaming, cinema, watch movies, trending movies, top rated films, trailers"
+    />
+    <meta name="author" content="MovieStream" />
+    <meta property="og:title" content="MovieStream — Cinema Discovery & Streaming" />
+    <meta
+      property="og:description"
+      content="Discover, search, and stream trending movies, top-rated cinema, trailers, and curate your personal watchlist."
+    />
+    <meta
+      property="og:image"
+      content="https://img.icons8.com/?size=100&id=sGQrCz1ti5x7&format=png&color=000000"
+    />
+    <meta property="og:url" content="https://movie-stream-phi.vercel.app" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MovieStream — Cinema Discovery & Streaming" />
+    <meta
+      name="twitter:description"
+      content="Discover, search, and stream trending movies, top-rated cinema, trailers, and curate your personal watchlist."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body>
+  <body class="antialiased selection:bg-accent/20 selection:text-accent">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
