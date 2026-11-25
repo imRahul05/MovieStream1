@@ -56,7 +56,7 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
   return (
     <section
       aria-label="Featured cinema"
-      className="relative w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-border bg-black shadow-2xl min-h-[430px] sm:min-h-[480px] lg:min-h-[540px] flex items-end"
+      className="relative w-full overflow-hidden bg-black min-h-[460px] sm:min-h-[540px] lg:min-h-[620px] xl:min-h-[680px] flex items-end border-b border-border"
     >
       {/* Backdrop or Embedded Trailer */}
       {isPlaying && trailer ? (
@@ -72,7 +72,7 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
             type="button"
             onClick={() => setIsPlaying(false)}
             aria-label="Close trailer"
-            className="absolute right-4 top-4 z-20 inline-flex items-center gap-1.5 rounded-full bg-black/80 px-3.5 py-2 text-xs font-semibold text-white backdrop-blur-md border border-white/15 hover:bg-black transition-colors cursor-pointer"
+            className="absolute right-4 top-4 sm:right-6 sm:top-6 z-20 inline-flex items-center gap-1.5 rounded-full bg-black/80 px-3.5 py-2 text-xs font-semibold text-white backdrop-blur-md border border-white/15 hover:bg-black transition-colors cursor-pointer"
           >
             <X className="h-4 w-4" />
             <span>Close Trailer</span>
@@ -90,14 +90,14 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
             <div className="absolute inset-0 bg-neutral-900" />
           )}
           {/* Multi-stop cinematic scrim */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/15" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/45 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent" />
         </>
       )}
 
-      {/* Content Overlay */}
+      {/* Content Overlay aligned with main container */}
       {!isPlaying && (
-        <div className="relative z-10 w-full p-5 sm:p-8 lg:p-12 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-20 pb-8 sm:pb-12 lg:pb-14 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div className="max-w-2xl">
             {/* Metadata row */}
             <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-medium text-white/85">

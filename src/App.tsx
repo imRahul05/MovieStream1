@@ -86,19 +86,16 @@ function App() {
   };
 
   const renderSkeleton = () => (
-    <div className="space-y-10 animate-pulse">
-      <div className="h-[440px] sm:h-[520px] w-full rounded-3xl bg-surface-elevated border border-border" />
-      <div className="space-y-4">
-        <div className="h-7 w-44 rounded-lg bg-surface-elevated" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="space-y-2.5">
-              <div className="aspect-[2/3] rounded-xl bg-surface-elevated border border-border" />
-              <div className="h-4 w-3/4 rounded bg-surface-elevated" />
-              <div className="h-3 w-1/3 rounded bg-surface-elevated" />
-            </div>
-          ))}
-        </div>
+    <div className="space-y-4 animate-pulse">
+      <div className="h-7 w-44 rounded-lg bg-surface-elevated" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div key={i} className="space-y-2.5">
+            <div className="aspect-[2/3] rounded-xl bg-surface-elevated border border-border" />
+            <div className="h-4 w-3/4 rounded bg-surface-elevated" />
+            <div className="h-3 w-1/3 rounded bg-surface-elevated" />
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -201,15 +198,6 @@ function App() {
       default:
         return (
           <div className="space-y-4">
-            {trending.length > 0 && (
-              <div className="mb-4">
-                <FeaturedMovie
-                  movies={trending}
-                  onMovieClick={handleMovieClick}
-                />
-              </div>
-            )}
-
             <MovieGrid
               title="Trending Now"
               subtitle="Fresh releases and buzzing titles this week"
@@ -267,6 +255,14 @@ function App() {
         onMovieSelect={handleMovieClick}
         onGenreSelect={handleGenreSelect}
       />
+
+      {/* Full-bleed edge-to-edge Hero on Home */}
+      {currentSection === 'home' &&
+        (isLoading ? (
+          <div className="w-full min-h-[460px] sm:min-h-[540px] lg:min-h-[620px] xl:min-h-[680px] bg-surface-elevated border-b border-border animate-pulse" />
+        ) : trending.length > 0 ? (
+          <FeaturedMovie movies={trending} onMovieClick={handleMovieClick} />
+        ) : null)}
 
       <main className="flex-1 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-5 sm:pt-7 pb-8">
         {renderContent()}
