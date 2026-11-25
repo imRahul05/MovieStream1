@@ -1,11 +1,19 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { ThemeProvider } from 'next-themes';
 import App from './App.tsx';
 import './index.css';
-//import { SpeedInsights } from "@vercel/speed-insights/next"
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="black"
+      themes={['light', 'dark', 'black']}
+      enableSystem={false}
+      disableTransitionOnChange
+    >
+      <App />
+    </ThemeProvider>
   </StrictMode>
 );

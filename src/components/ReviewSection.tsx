@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Star } from 'lucide-react';
+import { Star, Send, MessageSquare } from 'lucide-react';
+import { Rating, RatingItem } from '@ui-sdk/react/rating';
 import { addMovieReview, getLocalReviews } from '../services/api';
 
 interface Review {
@@ -21,14 +22,13 @@ export default function ReviewSection({ movieId, initialReviews }: ReviewSection
     return [...localReviews, ...initialReviews];
   });
   const [newReview, setNewReview] = useState('');
-  const [rating, setRating] = useState(5);
-  const [hoveredStar, setHoveredStar] = useState<number | null>(null);
+  const [rating, setRating] = useState<number>(5);
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newReview.trim()) {
       const review = await addMovieReview(movieId, {
-        content: newReview,
+        content: newReview.trim(),
         rating,
       });
       setReviews([review, ...reviews]);
@@ -38,70 +38,102 @@ export default function ReviewSection({ movieId, initialReviews }: ReviewSection
   };
 
   return (
-    <div className="border-t border-gray-800 pt-8">
-      <h3 className="text-xl font-semibold text-white mb-6">Reviews & Comments</h3>
-
-      <form onSubmit={handleSubmitReview} className="mb-8">
-        <div className="flex gap-2 mb-4">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              type="button"
-              onClick={() => setRating(star)}
-              onMouseEnter={() => setHoveredStar(star)}
-              onMouseLeave={() => setHoveredStar(null)}
-              className="focus:outline-none"
+    <div className="space-y-6">
+      {/* Review Composer */}
+      <form
+        onSubmit={handleSubmitReview}
+        className="rounded-2xl border border-border bg-surface-elevated/60 p-4 sm:p-5 space-y-4"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-sm font-semibold text-foreground">
+            Rate &amp; Review
+          </span>
+          <div className="flex items-center gap-2">
+            <Rating
+              aria-label="Your movie rating"
+              value={rating}
+              onValueChange={(next) => {
+                if (next !== null) setRating(next);
+              }}
+              className="inline-flex items-center gap-1"
             >
-              <Star
-                className={`w-6 h-6 ${
-                  star <= (hoveredStar ?? rating)
-                    ? 'fill-yellow-400 stroke-yellow-400'
-                    : 'stroke-gray-400'
-                }`}
-              />
-            </button>
-          ))}
+              <RatingItem className="cursor-pointer text-muted-foreground/40 transition-colors data-filled:text-gold">
+                {({ fill }) => (
+                  <Star
+                    aria-hidden="true"
+                    className="h-5 w-5"
+                    fill={fill === 1 ? 'currentColor' : 'none'}
+                  />
+                )}
+              </RatingItem>
+            </Rating>
+            <span className="font-mono text-xs font-semibold text-muted-foreground">
+              {rating}/5
+            </span>
+          </div>
         </div>
-        
-        <div className="flex gap-4">
+
+        <div className="flex flex-col sm:flex-row gap-3">
           <textarea
             value={newReview}
             onChange={(e) => setNewReview(e.target.value)}
-            placeholder="Write your review..."
-            className="flex-1 bg-gray-800 text-white rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            placeholder="Share your thoughts on the cinematography, pacing, or performances..."
+            className="flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
             rows={3}
           />
           <button
             type="submit"
             disabled={!newReview.trim()}
-            className="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed h-fit"
+            className="inline-flex items-center justify-center gap-2 self-end sm:self-end rounded-xl bg-brand hover:bg-brand-hover px-5 py-2.5 text-sm font-semibold text-brand-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
-            Post
+            <Send className="h-4 w-4" />
+            <span>Post</span>
           </button>
         </div>
       </form>
 
-      <div className="space-y-6">
-        {reviews.map((review) => (
-          <div key={review.id} className="bg-gray-800 rounded-lg p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h4 className="font-semibold text-white">{review.author}</h4>
-                <p className="text-sm text-gray-400">
-                  {new Date(review.created_at).toLocaleDateString()}
-                </p>
-              </div>
-              {review.rating && (
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-yellow-400 stroke-yellow-400" />
-                  <span className="text-white">{review.rating}</span>
+      {/* Reviews List */}
+      {reviews.length > 0 ? (
+        <div className="space-y-3.5">
+          {reviews.map((review) => (
+            <article
+              key={review.id}
+              className="rounded-2xl border border-border bg-surface-elevated/40 p-4 sm:p-5"
+            >
+              <div className="flex items-start justify-between gap-3 mb-2.5">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/15 font-display text-xs font-bold text-brand">
+                    {review.author.slice(0, 1).toUpperCase()}
+                  </span>
+                  <div>
+                    <h4 className="text-sm font-semibold text-foreground">
+                      {review.author}
+                    </h4>
+                    <p className="font-mono text-[11px] text-muted-foreground">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
-              )}
-            </div>
-            <p className="text-white/80">{review.content}</p>
-          </div>
-        ))}
-      </div>
+                {review.rating && (
+                  <div className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2.5 py-0.5 font-mono text-xs font-semibold text-gold">
+                    <Star className="h-3 w-3 fill-current" />
+                    <span>{review.rating}</span>
+                  </div>
+                )}
+              </div>
+              <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-line">
+                {review.content}
+              </p>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-10 text-center text-muted-foreground">
+          <MessageSquare className="h-7 w-7 opacity-40 mb-2" />
+          <p className="text-sm font-medium text-foreground">No reviews yet</p>
+          <p className="text-xs mt-0.5">Be the first to share your thoughts on this title.</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,25 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useSyncExternalStore } from 'react';
 import type { Movie } from '../types/movie';
 
-export const useWatchlist = () => {
-  const [watchlist, setWatchlist] = useState<Movie[]>(() => {
-    const saved = localStorage.getItem('watchlist');
-    return saved ? JSON.parse(saved) : [];
-  });
+const STORAGE_KEY = 'watchlist';
 
-  useEffect(() => {
-    localStorage.setItem('watchlist', JSON.stringify(watchlist));
-  }, [watchlist]);
+let cachedWatchlist: Movie[] = (() => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? (JSON.parse(saved) as Movie[]) : [];
+  } catch {
+    return [];
+  }
+})();
+
+const listeners = new Set<() => void>();
+
+function emitChange() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cachedWatchlist));
+  } catch {
+    // Ignore storage quota errors
+  }
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot() {
+  return cachedWatchlist;
+}
+
+export const useWatchlist = () => {
+  const watchlist = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   const addToWatchlist = (movie: Movie) => {
-    setWatchlist((prev) => {
-      if (prev.some((m) => m.id === movie.id)) return prev;
-      return [...prev, movie];
-    });
+    if (cachedWatchlist.some((m) => m.id === movie.id)) return;
+    cachedWatchlist = [movie, ...cachedWatchlist];
+    emitChange();
   };
 
   const removeFromWatchlist = (movieId: number) => {
-    setWatchlist((prev) => prev.filter((m) => m.id !== movieId));
+    cachedWatchlist = cachedWatchlist.filter((m) => m.id !== movieId);
+    emitChange();
+  };
+
+  const toggleWatchlist = (movie: Movie) => {
+    if (cachedWatchlist.some((m) => m.id === movie.id)) {
+      removeFromWatchlist(movie.id);
+    } else {
+      addToWatchlist(movie);
+    }
   };
 
   const isInWatchlist = (movieId: number) => {
@@ -30,6 +62,7 @@ export const useWatchlist = () => {
     watchlist,
     addToWatchlist,
     removeFromWatchlist,
+    toggleWatchlist,
     isInWatchlist,
   };
 };

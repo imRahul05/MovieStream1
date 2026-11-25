@@ -1,5 +1,11 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, Play } from 'lucide-react';
+import {
+  Accordion,
+  AccordionHeader,
+  AccordionItem,
+  AccordionPanel,
+  AccordionTrigger,
+} from '@ui-sdk/react/accordion';
 import type { Episode, Season } from '../types/movie';
 import { getVideoUrl } from '../services/video';
 
@@ -9,9 +15,11 @@ interface EpisodeListProps {
   onEpisodeSelect: (videoUrl: string) => void;
 }
 
-export default function EpisodeList({ seasons, seriesId, onEpisodeSelect }: EpisodeListProps) {
-  const [expandedSeason, setExpandedSeason] = useState<number | null>(1);
-
+export default function EpisodeList({
+  seasons,
+  seriesId,
+  onEpisodeSelect,
+}: EpisodeListProps) {
   const handleEpisodeClick = (seasonNumber: number, episodeNumber: number) => {
     const videoUrl = getVideoUrl('tv', seriesId, {
       season: seasonNumber,
@@ -20,58 +28,66 @@ export default function EpisodeList({ seasons, seriesId, onEpisodeSelect }: Epis
     onEpisodeSelect(videoUrl);
   };
 
-  return (
-    <div className="space-y-4">
-      {seasons.map((season) => (
-        <div key={season.id} className="bg-gray-800 rounded-lg overflow-hidden">
-          <button
-            onClick={() => setExpandedSeason(expandedSeason === season.season_number ? null : season.season_number)}
-            className="w-full px-6 py-4 flex items-center justify-between text-white hover:bg-gray-700"
-          >
-            <div>
-              <h3 className="text-lg font-semibold">Season {season.season_number}</h3>
-              <p className="text-sm text-gray-400">{season.episode_count} Episodes</p>
-            </div>
-            {expandedSeason === season.season_number ? (
-              <ChevronUp className="w-5 h-5" />
-            ) : (
-              <ChevronDown className="w-5 h-5" />
-            )}
-          </button>
+  const defaultSeason = seasons[0] ? [String(seasons[0].season_number)] : [];
 
-          {expandedSeason === season.season_number && season.episodes && (
-            <div className="border-t border-gray-700">
-              {season.episodes.map((episode: Episode) => (
-                <button
-                  key={episode.id}
-                  onClick={() => handleEpisodeClick(season.season_number, episode.episode_number)}
-                  className="w-full px-6 py-4 flex gap-4 hover:bg-gray-700 border-b border-gray-700 last:border-b-0"
-                >
-                  <div className="w-32 aspect-video rounded overflow-hidden flex-shrink-0">
-                    {episode.still_path ? (
-                      <img
-                        src={`https://image.tmdb.org/t/p/w300${episode.still_path}`}
-                        alt={episode.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-700 flex items-center justify-center">
-                        <span className="text-sm text-gray-400">No Preview</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 text-left">
-                    <h4 className="text-white font-medium">
-                      {episode.episode_number}. {episode.name}
-                    </h4>
-                    <p className="text-sm text-gray-400 line-clamp-2">{episode.overview}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+  return (
+    <Accordion defaultValue={defaultSeason} className="space-y-3">
+      {seasons.map((season) => (
+        <AccordionItem
+          key={season.id}
+          value={String(season.season_number)}
+          className="overflow-hidden rounded-2xl border border-border bg-surface-elevated/50"
+        >
+          <AccordionHeader>
+            <AccordionTrigger className="group flex w-full items-center justify-between px-5 py-4 text-left text-foreground hover:bg-surface-hover/60 transition-colors cursor-pointer">
+              <div>
+                <span className="font-display text-base font-semibold">
+                  Season {season.season_number}
+                </span>
+                <p className="font-mono text-xs text-muted-foreground">
+                  {season.episode_count} Episodes
+                </p>
+              </div>
+              <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-open:rotate-180" />
+            </AccordionTrigger>
+          </AccordionHeader>
+
+          <AccordionPanel className="border-t border-border">
+            {season.episodes?.map((episode: Episode) => (
+              <button
+                key={episode.id}
+                type="button"
+                onClick={() =>
+                  handleEpisodeClick(season.season_number, episode.episode_number)
+                }
+                className="flex w-full items-center gap-4 border-b border-border px-5 py-3.5 text-left last:border-b-0 hover:bg-surface-hover/60 transition-colors cursor-pointer"
+              >
+                <div className="relative w-28 sm:w-36 aspect-video shrink-0 overflow-hidden rounded-lg bg-surface-elevated border border-border">
+                  {episode.still_path ? (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w300${episode.still_path}`}
+                      alt={episode.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                      <Play className="h-4 w-4" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-sm font-semibold text-foreground truncate">
+                    {episode.episode_number}. {episode.name}
+                  </h4>
+                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                    {episode.overview}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </AccordionPanel>
+        </AccordionItem>
       ))}
-    </div>
+    </Accordion>
   );
 }
