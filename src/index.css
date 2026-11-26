@@ -5,58 +5,67 @@
 @custom-variant dark (&:where(.dark, .dark *, .black, .black *));
 
 :root {
-  --background: #fafaf9;
-  --foreground: #0c0a09;
+  /* Light — paper white, ink black, single ember-orange accent */
+  --background: #f7f7f8;
+  --foreground: #0b0b0f;
   --surface: #ffffff;
-  --surface-elevated: #f5f5f4;
-  --surface-hover: #ecebe9;
-  --muted: #f0efed;
-  --muted-foreground: #57534e;
-  --border: rgba(12, 10, 9, 0.09);
-  --border-strong: rgba(12, 10, 9, 0.16);
-  --brand: #dc2626;
-  --brand-hover: #b91c1c;
+  --surface-elevated: #f0f0f3;
+  --surface-hover: #e7e7ec;
+  --muted: #ececf0;
+  --muted-foreground: #5b5b66;
+  --border: rgba(11, 11, 15, 0.08);
+  --border-strong: rgba(11, 11, 15, 0.16);
+  --brand: #d24a0e;
+  --brand-hover: #b53e09;
   --brand-foreground: #ffffff;
-  --gold: #d97706;
-  --ring: rgba(220, 38, 38, 0.45);
-  --glass: rgba(250, 250, 249, 0.82);
-  --radius: 0.75rem;
+  --brand-soft: rgba(210, 74, 14, 0.10);
+  --brand-glow: rgba(210, 74, 14, 0.30);
+  --gold: #a16207;
+  --ring: rgba(210, 74, 14, 0.45);
+  --glass: rgba(247, 247, 248, 0.78);
+  --radius: 0.25rem;
 }
 
 .dark {
-  --background: #0d0f14;
-  --foreground: #f4f5f7;
-  --surface: #141720;
-  --surface-elevated: #1b1f2b;
-  --surface-hover: #232838;
-  --muted: #181c26;
-  --muted-foreground: #9ca3af;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.16);
-  --brand: #ef4444;
-  --brand-hover: #dc2626;
-  --brand-foreground: #ffffff;
-  --gold: #f59e0b;
-  --ring: rgba(239, 68, 68, 0.5);
-  --glass: rgba(13, 15, 20, 0.8);
+  /* Dark — graphite */
+  --background: #0c0c10;
+  --foreground: #f3f3f6;
+  --surface: #131318;
+  --surface-elevated: #1a1a21;
+  --surface-hover: #23232c;
+  --muted: #17171d;
+  --muted-foreground: #9a9aa8;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --brand: #ff6a2b;
+  --brand-hover: #ff8a55;
+  --brand-foreground: #0b0b0f;
+  --brand-soft: rgba(255, 106, 43, 0.14);
+  --brand-glow: rgba(255, 106, 43, 0.45);
+  --gold: #f5c451;
+  --ring: rgba(255, 106, 43, 0.55);
+  --glass: rgba(12, 12, 16, 0.72);
 }
 
 .black {
+  /* Black (default) — true OLED black */
   --background: #000000;
-  --foreground: #fafafa;
-  --surface: #09090b;
+  --foreground: #f5f5f7;
+  --surface: #0a0a0d;
   --surface-elevated: #121216;
-  --surface-hover: #1a1a20;
-  --muted: #111114;
-  --muted-foreground: #a1a1aa;
-  --border: rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.18);
-  --brand: #ef4444;
-  --brand-hover: #dc2626;
-  --brand-foreground: #ffffff;
-  --gold: #fbbf24;
-  --ring: rgba(239, 68, 68, 0.55);
-  --glass: rgba(0, 0, 0, 0.84);
+  --surface-hover: #1b1b21;
+  --muted: #0f0f13;
+  --muted-foreground: #8e8e9a;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --brand: #ff6a2b;
+  --brand-hover: #ff8a55;
+  --brand-foreground: #0b0b0f;
+  --brand-soft: rgba(255, 106, 43, 0.14);
+  --brand-glow: rgba(255, 106, 43, 0.5);
+  --gold: #f5c451;
+  --ring: rgba(255, 106, 43, 0.6);
+  --glass: rgba(0, 0, 0, 0.7);
 }
 
 @theme inline {
@@ -76,10 +85,60 @@
   --color-brand: var(--brand);
   --color-brand-hover: var(--brand-hover);
   --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-glow: var(--brand-glow);
   --color-gold: var(--gold);
   --color-ring: var(--ring);
   --color-glass: var(--glass);
+
+  /* Boxy radius scale — sharp, editorial corners (UI SDK default is 0) */
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 5px;
+  --radius-3xl: 6px;
+  --radius-4xl: 6px;
+
+  /* Motion tokens — use as `ease-(--ease-out-expo)` etc. */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* Animation utilities: animate-fade-up, animate-blur-in, ... */
+  --animate-fade-up: fade-up 700ms var(--ease-out-expo) both;
+  --animate-fade-in: fade-in 500ms ease-out both;
+  --animate-blur-in: blur-in 900ms var(--ease-out-expo) both;
+  --animate-scale-in: scale-in 450ms var(--ease-out-expo) both;
+  --animate-slide-in-right: slide-in-right 600ms var(--ease-out-expo) both;
+  --animate-ken-burns: ken-burns 16s ease-out both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-blip: blip 2.2s var(--ease-out-expo) infinite;
+  --animate-scan: scan 3.2s var(--ease-in-out-quart) infinite;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-progress: progress linear both;
+  --animate-glow-pulse: glow-pulse 3s ease-in-out infinite;
+  --animate-pop: pop 380ms var(--ease-spring) both;
 }
+
+@keyframes fade-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes blur-in { from { opacity: 0; filter: blur(14px); transform: scale(1.04); } to { opacity: 1; filter: blur(0); transform: none; } }
+@keyframes scale-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+@keyframes slide-in-right { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes ken-burns { from { transform: scale(1.12) translate3d(1.5%, 1%, 0); } to { transform: scale(1) translate3d(0, 0, 0); } }
+@keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+/* "Blip" — a radar-style ring expanding from a dot */
+@keyframes blip { 0% { transform: scale(0.6); opacity: 0.9; } 80%, 100% { transform: scale(2.6); opacity: 0; } }
+/* "Scan" — a thin light beam sweeping across an element */
+@keyframes scan { 0% { transform: translateX(-120%); } 60%, 100% { transform: translateX(220%); } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes glow-pulse { 0%, 100% { box-shadow: 0 0 0 0 var(--brand-glow); } 50% { box-shadow: 0 0 28px 2px var(--brand-glow); } }
+@keyframes pop { 0% { transform: scale(0.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
 
 @layer base {
   * {
@@ -141,4 +200,135 @@
 /* Safe area helper for mobile bottom nav */
 .pb-safe {
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+/* ------------------------------------------------------------------ */
+/* Motion helpers                                                      */
+/* ------------------------------------------------------------------ */
+
+/* Stagger: set style={{ '--i': index }} on children with an animate-* class */
+.stagger > * {
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+/* Scroll reveal: elements fade/rise as they enter the viewport.
+   Uses CSS scroll-driven animations where supported; the
+   `useReveal` hook adds `.is-visible` as a fallback. */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 800ms var(--ease-out-expo), transform 800ms var(--ease-out-expo);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Skeleton shimmer surface */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-elevated) 0%,
+    var(--surface-hover) 45%,
+    var(--surface-elevated) 90%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+/* Shine: diagonal light sweep on hover (put on a relatively positioned, overflow-hidden element) */
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: -50% auto -50% -60%;
+  width: 40%;
+  transform: translateX(-120%) rotate(18deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  pointer-events: none;
+}
+.group:hover .shine::after,
+.shine:hover::after {
+  transition: transform 900ms var(--ease-out-expo);
+  transform: translateX(520%) rotate(18deg);
+}
+
+/* Spotlight: cursor-following glow. Set --mx/--my via useSpotlight(). */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    var(--brand-soft),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Film grain overlay for cinematic surfaces */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Blip dot: <span class="blip-dot" /> renders a dot with a radar ring */
+.blip-dot {
+  position: relative;
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 1px;
+  background: var(--brand);
+}
+.blip-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--brand);
+  animation: var(--animate-blip);
+}
+
+/* Gradient text using only the accent + foreground */
+.text-gradient {
+  background: linear-gradient(100deg, var(--foreground) 30%, var(--brand) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Respect user motion preferences everywhere */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
 }

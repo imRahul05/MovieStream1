@@ -11,20 +11,22 @@ const socialLinks = [
 
 const SocialIcons: React.FC = () => {
   return (
-    <div className="flex items-center gap-2 pt-1">
-      {socialLinks.map(({ icon: Icon, href, label }) => (
-        <a
-          key={label}
-          href={href}
-          aria-label={label}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface-elevated text-muted-foreground hover:border-border-strong hover:bg-surface-hover hover:text-foreground transition-colors"
-        >
-          <Icon size={15} />
-        </a>
+    <ul className="flex flex-wrap items-center gap-2 pt-1" aria-label="Social links">
+      {socialLinks.map(({ icon: Icon, href, label }, i) => (
+        <li key={label}>
+          <a
+            href={href}
+            aria-label={label}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ transitionDelay: `${i * 12}ms` }}
+            className="group inline-flex h-10 w-10 items-center justify-center rounded-sm border border-border bg-surface-elevated text-muted-foreground transition-all duration-300 ease-(--ease-spring) hover:-translate-y-1 hover:border-brand hover:bg-brand-soft hover:text-brand hover:shadow-[0_10px_22px_-10px_var(--brand-glow)] active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          >
+            <Icon size={16} className="transition-transform duration-300 group-hover:scale-110" />
+          </a>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 };
 

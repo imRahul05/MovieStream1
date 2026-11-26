@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Search,
   X,
@@ -30,6 +30,14 @@ import {
 import { searchMovies } from '../services/api';
 import { GENRES } from '../data/fallbackMovies';
 import type { Movie } from '../types/movie';
+import { SHORTCUT_LABEL } from './nav/navItems';
+
+const ROW_ANIM = 'animate-[fade-up_420ms_var(--ease-out-expo)_both]';
+const ROW_BASE =
+  'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-foreground cursor-pointer transition-colors duration-150 data-highlighted:bg-surface-elevated before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-[3px] before:origin-center before:scale-y-0 before:rounded-sm before:bg-brand before:transition-transform before:duration-300 before:ease-(--ease-out-expo) data-highlighted:before:scale-y-100';
+const GROUP_LABEL =
+  'px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground';
+const delay = (i: number) => ({ animationDelay: `${i * 45}ms` });
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -56,10 +64,13 @@ export default function SearchBar({
   const [isSearching, setIsSearching] = useState(false);
 
   const isOpen = controlledOpen ?? internalOpen;
-  const setIsOpen = (next: boolean) => {
-    setInternalOpen(next);
-    onOpenChange?.(next);
-  };
+  const setIsOpen = useCallback(
+    (next: boolean) => {
+      setInternalOpen(next);
+      onOpenChange?.(next);
+    },
+    [onOpenChange]
+  );
 
   // Global Cmd+K / Ctrl+K shortcut
   useEffect(() => {
@@ -71,7 +82,7 @@ export default function SearchBar({
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen]);
+  }, [isOpen, setIsOpen]);
 
   // Debounced instant search inside the command palette
   useEffect(() => {
@@ -119,12 +130,13 @@ export default function SearchBar({
           type="button"
           onClick={() => setIsOpen(true)}
           aria-label="Search movies"
-          className="group flex items-center gap-2.5 h-9 px-3 sm:px-3.5 rounded-full border border-border bg-surface-elevated/80 hover:bg-surface-hover text-sm text-muted-foreground hover:text-foreground transition-all cursor-pointer w-full sm:w-56 md:w-64 lg:w-72"
+          aria-keyshortcuts="Control+K Meta+K"
+          className="group hidden h-9 w-full items-center sm:flex gap-2.5 rounded-sm border border-border bg-surface-elevated/70 px-3 text-sm text-muted-foreground transition-all duration-300 hover:border-border-strong hover:bg-surface-hover hover:text-foreground cursor-pointer sm:w-44 md:w-52 xl:w-72 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
-          <Search className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-foreground transition-colors" />
-          <span className="flex-1 text-left truncate">Search films, genres…</span>
-          <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded-md border border-border bg-surface px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
-            ⌘K
+          <Search className="h-4 w-4 shrink-0 transition-transform duration-300 ease-(--ease-spring) group-hover:scale-110 group-hover:text-brand" aria-hidden="true" />
+          <span className="flex-1 truncate text-left">Search films&hellip;</span>
+          <kbd className="hidden items-center rounded-md border border-border bg-surface px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground lg:inline-flex">
+            {SHORTCUT_LABEL}
           </kbd>
         </button>
       ) : (
@@ -136,23 +148,23 @@ export default function SearchBar({
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsOpen(true)}
             placeholder="Search movies, directors, genres..."
-            className="w-full h-11 pl-11 pr-20 rounded-full border border-border bg-surface text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+            className="w-full h-11 pl-11 pr-20 rounded-sm border border-border bg-surface text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
           />
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-surface-elevated border border-border px-2.5 py-1 font-mono text-[11px] text-muted-foreground hover:text-foreground cursor-pointer"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-sm bg-surface-elevated border border-border px-2.5 py-1 font-mono text-[11px] text-muted-foreground hover:text-foreground cursor-pointer"
           >
-            ⌘K
+            {SHORTCUT_LABEL}
           </button>
         </form>
       )}
 
       <Dialog open={isOpen} onOpenChange={(next) => setIsOpen(next)}>
-        <DialogBackdrop className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm transition-opacity duration-200 data-starting-style:opacity-0 data-ending-style:opacity-0" />
+        <DialogBackdrop className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm transition-opacity duration-300 data-starting-style:opacity-0 data-ending-style:opacity-0" />
         <DialogContent
           aria-label="Search movies"
-          className="fixed left-1/2 top-[10vh] sm:top-[12vh] z-50 w-[calc(100%-1.5rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-2xl border border-border-strong bg-surface shadow-2xl transition-all duration-200 data-starting-style:opacity-0 data-starting-style:scale-95 data-ending-style:opacity-0 data-ending-style:scale-95"
+          className="fixed left-1/2 top-[10vh] sm:top-[12vh] z-50 w-[calc(100%-1.5rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-2xl border border-border-strong bg-surface shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7),0_0_0_1px_var(--border)] transition-[opacity,scale,filter] duration-300 ease-(--ease-out-expo) data-starting-style:opacity-0 data-starting-style:scale-95 data-starting-style:blur-md data-ending-style:opacity-0 data-ending-style:scale-95 data-ending-style:blur-md motion-reduce:transition-none"
         >
           <DialogTitle className="sr-only">Search MovieStream</DialogTitle>
 
@@ -163,11 +175,11 @@ export default function SearchBar({
             className="flex flex-col max-h-[75vh]"
           >
             {/* Search Input Header */}
-            <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
+            <div className="relative flex items-center gap-3 border-b border-border px-4 py-3.5">
               {isSearching ? (
-                <Loader2 className="h-5 w-5 shrink-0 animate-spin text-brand" />
+                <Loader2 className="h-5 w-5 shrink-0 animate-spin text-brand" aria-hidden="true" />
               ) : (
-                <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
+                <Search className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
               )}
               <CommandInput
                 aria-label="Search movies"
@@ -178,36 +190,48 @@ export default function SearchBar({
                     handleFullSearchSubmit();
                   }
                 }}
-                className="flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
+                className="min-w-0 flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
               {query && (
                 <button
                   type="button"
                   onClick={() => setQuery('')}
                   aria-label="Clear search"
-                  className="rounded-full p-1 text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer"
+                  className="rounded-sm p-1.5 text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-brand"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4" aria-hidden="true" />
                 </button>
               )}
               <DialogClose
                 aria-label="Close search"
-                className="rounded-lg border border-border bg-surface-elevated px-2 py-1 font-mono text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="rounded-lg border border-border bg-surface-elevated px-2 py-1 font-mono text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-brand"
               >
                 ESC
               </DialogClose>
+
+              {/* Accent scan line while searching */}
+              <span
+                aria-hidden="true"
+                className={`pointer-events-none absolute inset-x-0 -bottom-px h-px overflow-hidden transition-opacity duration-300 ${
+                  isSearching ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <span className="block h-full w-1/3 animate-scan bg-linear-to-r from-transparent via-brand to-transparent" />
+              </span>
             </div>
 
             {/* Results & Suggestions */}
-            <CommandList className="overflow-y-auto p-2 space-y-2">
+            <CommandList className="space-y-2 overflow-y-auto p-2">
               {query.trim() ? (
                 <>
                   {instantResults.length > 0 ? (
-                    <CommandGroup>
-                      <CommandGroupLabel className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <CommandGroup
+                      className={`transition-opacity duration-200 ${isSearching ? 'opacity-60' : 'opacity-100'}`}
+                    >
+                      <CommandGroupLabel className={GROUP_LABEL}>
                         Instant Matches
                       </CommandGroupLabel>
-                      {instantResults.map((movie) => (
+                      {instantResults.map((movie, i) => (
                         <CommandItem
                           key={movie.id}
                           value={String(movie.id)}
@@ -215,56 +239,70 @@ export default function SearchBar({
                             onMovieSelect(movie.id);
                             setIsOpen(false);
                           }}
-                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 cursor-pointer text-foreground transition-colors data-highlighted:bg-surface-elevated hover:bg-surface-elevated"
+                          style={delay(i)}
+                          className={`${ROW_BASE} ${ROW_ANIM}`}
                         >
-                          <div className="h-12 w-8 shrink-0 overflow-hidden rounded-md bg-surface-elevated border border-border">
+                          <div className="h-12 w-8 shrink-0 overflow-hidden rounded-md border border-border bg-surface-elevated">
                             {movie.poster_path ? (
                               <img
                                 src={`https://image.tmdb.org/t/p/w92${movie.poster_path}`}
-                                alt={movie.title}
+                                alt=""
                                 className="h-full w-full object-cover"
                               />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                                <Film className="h-4 w-4" />
+                                <Film className="h-4 w-4" aria-hidden="true" />
                               </div>
                             )}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-medium text-sm text-foreground">
+                            <p className="truncate text-sm font-medium text-foreground">
                               {movie.title}
                             </p>
-                            <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground font-mono">
+                            <div className="mt-0.5 flex items-center gap-2 font-mono text-xs text-muted-foreground">
                               <span>
                                 {movie.release_date
                                   ? movie.release_date.slice(0, 4)
                                   : 'TBA'}
                               </span>
-                              <span>·</span>
+                              <span aria-hidden="true">·</span>
                               <span className="inline-flex items-center gap-1 text-gold">
-                                <Star className="h-3 w-3 fill-current" />
+                                <Star className="h-3 w-3 fill-current" aria-hidden="true" />
                                 {movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}
                               </span>
                             </div>
                           </div>
-                          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                          <ArrowRight className="h-4 w-4 shrink-0 -translate-x-1 text-muted-foreground opacity-0 transition-all duration-200 group-data-highlighted:translate-x-0 group-data-highlighted:opacity-100" aria-hidden="true" />
                         </CommandItem>
                       ))}
                     </CommandGroup>
-                  ) : !isSearching ? (
-                    <CommandEmpty className="py-10 text-center text-sm text-muted-foreground">
-                      No instant matches for &ldquo;{query}&rdquo;.
+                  ) : isSearching ? (
+                    <div className="space-y-1 px-1 py-1" role="status" aria-label="Searching">
+                      {[0, 1, 2].map((i) => (
+                        <div key={i} className="flex items-center gap-3 rounded-xl px-2 py-2.5">
+                          <div className="skeleton h-12 w-8 shrink-0 rounded-md" />
+                          <div className="flex-1 space-y-2">
+                            <div className="skeleton h-3.5 rounded" style={{ width: `${70 - i * 12}%` }} />
+                            <div className="skeleton h-3 w-1/4 rounded" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <CommandEmpty className="flex flex-col items-center gap-2 py-10 text-center text-sm text-muted-foreground animate-fade-up">
+                      <Search className="h-6 w-6 text-muted-foreground/60" aria-hidden="true" />
+                      <span>No instant matches for &ldquo;{query}&rdquo;.</span>
                     </CommandEmpty>
-                  ) : null}
+                  )}
 
-                  <div className="px-2 pt-1 pb-1">
+                  <div className="px-1 pb-1 pt-1">
                     <button
                       type="button"
                       onClick={() => handleFullSearchSubmit()}
-                      className="flex w-full items-center justify-between rounded-xl bg-brand/10 hover:bg-brand/15 border border-brand/20 px-4 py-2.5 text-sm font-medium text-brand transition-colors cursor-pointer"
+                      className="group flex w-full items-center justify-between rounded-xl border border-brand/30 bg-brand-soft px-4 py-2.5 text-sm font-medium text-brand transition-colors hover:border-brand/60 cursor-pointer focus-visible:outline-2 focus-visible:outline-brand"
                     >
-                      <span>View all results for &ldquo;{query.trim()}&rdquo;</span>
-                      <ArrowRight className="h-4 w-4" />
+                      <span className="truncate">View all results for &ldquo;{query.trim()}&rdquo;</span>
+                      <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
                     </button>
                   </div>
                 </>
@@ -272,14 +310,14 @@ export default function SearchBar({
                 <>
                   {onNavigate && (
                     <CommandGroup>
-                      <CommandGroupLabel className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <CommandGroupLabel className={GROUP_LABEL}>
                         Quick Navigation
                       </CommandGroupLabel>
                       {[
                         { id: 'trending', label: 'Trending This Week', icon: Flame },
                         { id: 'top-rated', label: 'Top Rated Cinema', icon: Sparkles },
                         { id: 'watchlist', label: 'My Watchlist', icon: Clock },
-                      ].map((item) => {
+                      ].map((item, i) => {
                         const Icon = item.icon;
                         return (
                           <CommandItem
@@ -289,9 +327,10 @@ export default function SearchBar({
                               onNavigate(item.id);
                               setIsOpen(false);
                             }}
-                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-foreground cursor-pointer transition-colors data-highlighted:bg-surface-elevated hover:bg-surface-elevated"
+                            style={delay(i)}
+                            className={`${ROW_BASE} ${ROW_ANIM} text-sm`}
                           >
-                            <Icon className="h-4 w-4 text-brand" />
+                            <Icon className="h-4 w-4 text-brand" aria-hidden="true" />
                             <span>{item.label}</span>
                           </CommandItem>
                         );
@@ -306,7 +345,7 @@ export default function SearchBar({
                       Explore by Genre
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {GENRES.map((genre) => (
+                      {GENRES.map((genre, i) => (
                         <button
                           key={genre.id}
                           type="button"
@@ -318,7 +357,8 @@ export default function SearchBar({
                             }
                             setIsOpen(false);
                           }}
-                          className="rounded-full border border-border bg-surface-elevated px-3 py-1 text-xs font-medium text-foreground hover:border-brand/50 hover:bg-brand/10 hover:text-brand transition-colors cursor-pointer"
+                          style={{ animationDelay: `${150 + i * 25}ms` }}
+                          className="animate-[scale-in_380ms_var(--ease-out-expo)_both] rounded-sm border border-border bg-surface-elevated px-3 py-1.5 text-xs font-medium text-foreground transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/60 hover:bg-brand-soft hover:text-brand cursor-pointer focus-visible:outline-2 focus-visible:outline-brand"
                         >
                           {genre.name}
                         </button>
@@ -329,7 +369,7 @@ export default function SearchBar({
               )}
             </CommandList>
 
-            <div className="hidden sm:flex items-center justify-between border-t border-border bg-surface-elevated/50 px-4 py-2 text-[11px] text-muted-foreground">
+            <div className="hidden items-center justify-between border-t border-border bg-surface-elevated/50 px-4 py-2 text-[11px] text-muted-foreground sm:flex">
               <div className="flex items-center gap-3">
                 <span>
                   <kbd className="rounded border border-border bg-surface px-1 py-0.5 font-mono">↑↓</kbd> Navigate
@@ -337,8 +377,14 @@ export default function SearchBar({
                 <span>
                   <kbd className="rounded border border-border bg-surface px-1 py-0.5 font-mono">↵</kbd> Open
                 </span>
+                <span>
+                  <kbd className="rounded border border-border bg-surface px-1 py-0.5 font-mono">esc</kbd> Close
+                </span>
               </div>
-              <span>Powered by UI SDK</span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="blip-dot" aria-hidden="true" />
+                Live search
+              </span>
             </div>
           </Command>
         </DialogContent>

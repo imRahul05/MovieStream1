@@ -25,3 +25,5 @@ yarn-error.log*
 .vscode
 .vscode
 ./.vscode
+# vite build output
+/dist

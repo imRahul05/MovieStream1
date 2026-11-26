@@ -1,19 +1,22 @@
-import { X, Star, Clock, Calendar, Bookmark, Check, User } from 'lucide-react';
+import { X, Clock, Calendar, Bookmark, Check, User } from 'lucide-react';
 import { useState } from 'react';
 import {
   Dialog,
   DialogBackdrop,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogTitle,
 } from '@ui-sdk/react/dialog';
-import { Tabs, TabsList, TabsPanel, TabsTab } from '@ui-sdk/react/tabs';
+import { Tabs, TabsIndicator, TabsList, TabsPanel, TabsTab } from '@ui-sdk/react/tabs';
 import { Toggle } from '@ui-sdk/react/toggle';
 import type { MovieDetails } from '../types/movie';
 import StreamingInfo from './StreamingInfo';
 import ReviewSection from './ReviewSection';
 import VideoPlayer from './VideoPlayer';
 import EpisodeList from './EpisodeList';
+import RatingRing from './details/RatingRing';
+import { dialogBackdropClass, dialogPanelMotion, focusRing } from './details/dialogStyles';
 import { getVideoUrl } from '../services/video';
 import { useWatchlist } from '../hooks/useWatchlist';
 
@@ -22,208 +25,248 @@ interface MovieDetailsModalProps {
   onClose: () => void;
 }
 
+const tabClass = `relative shrink-0 cursor-pointer rounded-md px-4 py-3 text-sm font-medium text-muted-foreground transition-colors duration-300 hover:text-foreground data-selected:text-foreground ${focusRing} focus-visible:ring-inset focus-visible:ring-offset-0`;
+const panelClass =
+  'animate-fade-up [animation-duration:500ms] focus-visible:outline-none';
+
+const stagger = (i: number) => ({ '--i': i + 2 }) as React.CSSProperties;
+
 export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalProps) {
+  const [open, setOpen] = useState(true);
   const [videoUrl, setVideoUrl] = useState(() =>
     getVideoUrl(movie.media_type || 'movie', movie.id)
   );
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const inWatchlist = isInWatchlist(movie.id);
-
-  const handleEpisodeSelect = (url: string) => {
-    setVideoUrl(url);
-  };
+  const mediaType = movie.media_type || 'movie';
+  const hasSeasons = !!movie.seasons && movie.seasons.length > 0;
+  const atmosphere = movie.backdrop_path || movie.poster_path;
+  const year = movie.release_date ? new Date(movie.release_date).getFullYear() : null;
+  const cast = movie.credits?.cast ?? [];
 
   return (
-    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogBackdrop className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md transition-opacity duration-200 data-starting-style:opacity-0 data-ending-style:opacity-0" />
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) setOpen(false);
+      }}
+      onOpenChangeComplete={(next) => {
+        if (!next) onClose();
+      }}
+    >
+      <DialogBackdrop className={dialogBackdropClass} />
       <DialogContent
-        aria-label={movie.title}
-        className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-1rem)] sm:w-[calc(100%-2.5rem)] max-w-4xl max-h-[92dvh] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl sm:rounded-3xl border border-border-strong bg-surface shadow-2xl transition-all duration-200 data-starting-style:opacity-0 data-starting-style:scale-95 data-ending-style:opacity-0 data-ending-style:scale-95"
+        className={`fixed inset-0 z-50 m-0 h-dvh max-h-none w-full max-w-none overflow-hidden border-0 bg-surface p-0 text-foreground max-sm:data-starting-style:translate-y-10 max-sm:data-starting-style:scale-100 max-sm:data-ending-style:translate-y-10 max-sm:data-ending-style:scale-100 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[92dvh] sm:w-[calc(100%-3rem)] sm:max-w-5xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl sm:border sm:border-border-strong sm:shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)] ${dialogPanelMotion}`}
       >
-        {/* Close Button */}
+        {/* Close button: lives outside the scroller so it is always reachable */}
         <DialogClose
           aria-label="Close movie details"
-          className="absolute right-3 top-3 sm:right-4 sm:top-4 z-30 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white backdrop-blur-md border border-white/15 hover:bg-black transition-colors cursor-pointer"
+          className={`group absolute right-3 top-[max(0.75rem,env(safe-area-inset-top))] z-30 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-sm border border-white/20 bg-black/60 text-white backdrop-blur-md transition-all duration-300 ease-(--ease-out-expo) hover:scale-110 hover:bg-black/80 sm:right-4 sm:top-4 ${focusRing}`}
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" aria-hidden="true" />
         </DialogClose>
 
-        {/* Video Player Area */}
-        <div className="relative bg-black">
-          <VideoPlayer
-            mediaId={String(movie.id)}
-            mediaType={movie.media_type || 'movie'}
-            videoUrl={videoUrl}
-            posterPath={movie.backdrop_path}
-            imdbId={movie.imdb_id}
-          />
-        </div>
-
-        {/* Details Body */}
-        <div className="p-5 sm:p-8">
-          {/* Header Row */}
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
-            <div>
-              <DialogTitle className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-                {movie.title}
-              </DialogTitle>
-
-              {/* Metadata Pills */}
-              <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs font-mono text-muted-foreground">
-                {movie.vote_average > 0 && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2.5 py-1 font-semibold text-gold">
-                    <Star className="h-3.5 w-3.5 fill-current" />
-                    {movie.vote_average.toFixed(1)} / 10
-                  </span>
-                )}
-                {movie.release_date && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-surface-elevated border border-border px-2.5 py-1 text-foreground">
-                    <Calendar className="h-3 w-3 text-muted-foreground" />
-                    {new Date(movie.release_date).toLocaleDateString(undefined, {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </span>
-                )}
-                {movie.runtime > 0 && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-surface-elevated border border-border px-2.5 py-1 text-foreground">
-                    <Clock className="h-3 w-3 text-muted-foreground" />
-                    {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <Toggle
-              pressed={inWatchlist}
-              onPressedChange={() => toggleWatchlist(movie)}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-border bg-surface-elevated px-4 py-2 text-xs font-semibold text-foreground hover:bg-surface-hover transition-colors cursor-pointer data-pressed:bg-brand data-pressed:border-brand data-pressed:text-brand-foreground"
-            >
-              {inWatchlist ? (
-                <>
-                  <Check className="h-4 w-4" />
-                  <span>Saved in Watchlist</span>
-                </>
-              ) : (
-                <>
-                  <Bookmark className="h-4 w-4" />
-                  <span>Add to Watchlist</span>
-                </>
-              )}
-            </Toggle>
-          </div>
-
-          {/* Genre Badges */}
-          {movie.genres?.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-5">
-              {movie.genres.map((genre) => (
-                <span
-                  key={genre.id}
-                  className="rounded-full border border-border bg-surface-elevated px-3 py-1 text-xs font-medium text-muted-foreground"
-                >
-                  {genre.name}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Tabbed Content powered by UI SDK Tabs */}
-          <Tabs defaultValue="overview">
-            <TabsList
-              aria-label="Movie details sections"
-              className="flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-border pb-px mb-6"
-            >
-              <TabsTab
-                value="overview"
-                className="shrink-0 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors cursor-pointer hover:text-foreground data-selected:border-brand data-selected:text-foreground"
-              >
-                Overview &amp; Cast
-              </TabsTab>
-              <TabsTab
-                value="streaming"
-                className="shrink-0 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors cursor-pointer hover:text-foreground data-selected:border-brand data-selected:text-foreground"
-              >
-                Where to Watch
-              </TabsTab>
-              {movie.seasons && movie.seasons.length > 0 && (
-                <TabsTab
-                  value="episodes"
-                  className="shrink-0 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors cursor-pointer hover:text-foreground data-selected:border-brand data-selected:text-foreground"
-                >
-                  Episodes
-                </TabsTab>
-              )}
-              <TabsTab
-                value="reviews"
-                className="shrink-0 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors cursor-pointer hover:text-foreground data-selected:border-brand data-selected:text-foreground"
-              >
-                Reviews
-              </TabsTab>
-            </TabsList>
-
-            <TabsPanel value="overview" className="space-y-6 focus:outline-none">
-              <p className="text-sm sm:text-base leading-relaxed text-foreground/85">
-                {movie.overview || 'No synopsis available for this title.'}
-              </p>
-
-              {movie.credits?.cast?.length > 0 && (
-                <div>
-                  <h3 className="font-display text-base font-semibold text-foreground mb-3.5">
-                    Top Cast
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-                    {movie.credits.cast.slice(0, 6).map((actor) => (
-                      <div
-                        key={actor.id}
-                        className="flex flex-col items-center rounded-xl border border-border bg-surface-elevated/60 p-3 text-center"
-                      >
-                        <div className="h-16 w-16 overflow-hidden rounded-full border border-border bg-surface mb-2.5 flex items-center justify-center">
-                          {actor.profile_path ? (
-                            <img
-                              src={`https://image.tmdb.org/t/p/w185${actor.profile_path}`}
-                              alt={actor.name}
-                              className="h-full w-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <User className="h-6 w-6 text-muted-foreground" />
-                          )}
-                        </div>
-                        <p className="text-xs font-semibold text-foreground line-clamp-1">
-                          {actor.name}
-                        </p>
-                        <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-1">
-                          {actor.character}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </TabsPanel>
-
-            <TabsPanel value="streaming" className="focus:outline-none">
-              <StreamingInfo watchProviders={movie.watchProviders} />
-            </TabsPanel>
-
-            {movie.seasons && movie.seasons.length > 0 && (
-              <TabsPanel value="episodes" className="focus:outline-none">
-                <EpisodeList
-                  seasons={movie.seasons}
-                  seriesId={movie.id}
-                  onEpisodeSelect={handleEpisodeSelect}
+        <div className="max-h-dvh overflow-y-auto overscroll-contain sm:max-h-[92dvh]">
+          <div className="relative isolate pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+            {/* Atmosphere: ken-burns backdrop, grain and scrims */}
+            <div className="grain pointer-events-none absolute inset-x-0 top-0 -z-10 h-[34rem] overflow-hidden" aria-hidden="true">
+              {atmosphere && (
+                <img
+                  src={`https://image.tmdb.org/t/p/w1280${atmosphere}`}
+                  alt=""
+                  className="animate-ken-burns h-full w-full scale-110 object-cover opacity-45 blur-sm"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
                 />
-              </TabsPanel>
-            )}
+              )}
+              <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_15%_0%,var(--brand-soft),transparent_70%)]" />
+              <div className="absolute inset-0 bg-linear-to-b from-surface/40 via-surface/80 to-surface" />
+            </div>
 
-            <TabsPanel value="reviews" className="focus:outline-none">
-              <ReviewSection
-                movieId={String(movie.id)}
-                initialReviews={movie.reviews?.results ?? []}
+            {/* Player */}
+            <div className="px-0 pt-0 sm:px-6 sm:pt-6">
+              <VideoPlayer
+                mediaId={String(movie.id)}
+                mediaType={mediaType}
+                videoUrl={videoUrl}
+                posterPath={movie.backdrop_path}
+                imdbId={movie.imdb_id}
               />
-            </TabsPanel>
-          </Tabs>
+            </div>
+
+            {/* Header */}
+            <div className="px-5 pt-6 sm:px-9 sm:pt-8">
+              <div className="stagger flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
+                <div className="min-w-0 flex-1">
+                  <p
+                    className="animate-fade-up mb-3 flex items-center gap-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-brand"
+                    style={stagger(0)}
+                  >
+                    <span className="blip-dot" aria-hidden="true" />
+                    {mediaType === 'tv' ? 'Series' : 'Film'}
+                    {year && <span className="text-muted-foreground">/ {year}</span>}
+                  </p>
+                  <DialogTitle
+                    className="animate-fade-up font-display text-3xl font-extrabold leading-[1.05] tracking-tight text-foreground wrap-break-word sm:text-4xl lg:text-5xl"
+                    style={stagger(1)}
+                  >
+                    {movie.title}
+                  </DialogTitle>
+
+                  <div
+                    className="animate-fade-up mt-4 flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground"
+                    style={stagger(2)}
+                  >
+                    {movie.release_date && (
+                      <span className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface-elevated px-3 py-1.5 text-foreground">
+                        <Calendar className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                        {new Date(movie.release_date).toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </span>
+                    )}
+                    {movie.runtime > 0 && (
+                      <span className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface-elevated px-3 py-1.5 text-foreground">
+                        <Clock className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                        {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
+                      </span>
+                    )}
+                  </div>
+
+                  {movie.genres?.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {movie.genres.map((genre, i) => (
+                        <span
+                          key={genre.id}
+                          className="animate-fade-up rounded-sm border border-border-strong px-3 py-1 text-xs font-medium text-muted-foreground"
+                          style={stagger(3 + i)}
+                        >
+                          {genre.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  className="animate-fade-up flex shrink-0 items-center gap-4 sm:flex-col sm:items-end sm:gap-4"
+                  style={stagger(4)}
+                >
+                  {movie.vote_average > 0 && <RatingRing value={movie.vote_average} />}
+                  <Toggle
+                    pressed={inWatchlist}
+                    onPressedChange={() => toggleWatchlist(movie)}
+                    className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm border border-border-strong bg-surface-elevated px-4 py-2.5 text-xs font-semibold text-foreground transition-all duration-300 hover:bg-surface-hover active:scale-95 data-pressed:border-brand data-pressed:bg-brand data-pressed:text-brand-foreground data-pressed:shadow-[0_0_24px_var(--brand-glow)] max-sm:flex-1 ${focusRing}`}
+                  >
+                    <span key={String(inWatchlist)} className="animate-pop inline-flex" aria-hidden="true">
+                      {inWatchlist ? <Check className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+                    </span>
+                    <span>{inWatchlist ? 'In Watchlist' : 'Add to Watchlist'}</span>
+                  </Toggle>
+                </div>
+              </div>
+
+              <DialogDescription className="sr-only">
+                {movie.overview || `Details for ${movie.title}`}
+              </DialogDescription>
+
+              {/* Tabs */}
+              <Tabs defaultValue="overview" className="mt-8">
+                <TabsList
+                  aria-label="Movie details sections"
+                  className="no-scrollbar relative flex items-center gap-1 overflow-x-auto border-b border-border-strong"
+                >
+                  <TabsTab value="overview" className={tabClass}>
+                    Overview
+                  </TabsTab>
+                  <TabsTab value="streaming" className={tabClass}>
+                    Where to Watch
+                  </TabsTab>
+                  {hasSeasons && (
+                    <TabsTab value="episodes" className={tabClass}>
+                      Episodes
+                    </TabsTab>
+                  )}
+                  <TabsTab value="reviews" className={tabClass}>
+                    Reviews
+                  </TabsTab>
+                  <TabsIndicator className="pointer-events-none absolute bottom-0 left-(--active-tab-left) h-0.5 w-(--active-tab-width) rounded-full bg-brand shadow-[0_0_12px_var(--brand-glow)] transition-[left,width] duration-400 ease-(--ease-out-expo) data-[activation-direction=none]:transition-none" />
+                </TabsList>
+
+                <div className="pt-6">
+                  <TabsPanel value="overview" className={`${panelClass} space-y-8`}>
+                    <p className="max-w-3xl text-base leading-relaxed text-foreground/90 sm:text-[17px]">
+                      {movie.overview || 'No synopsis available for this title.'}
+                    </p>
+
+                    {cast.length > 0 && (
+                      <div>
+                        <h3 className="mb-4 flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                          <span className="h-px w-5 bg-brand" aria-hidden="true" />
+                          Top Cast
+                        </h3>
+                        <ul className="stagger grid grid-cols-3 gap-3 sm:grid-cols-6">
+                          {cast.slice(0, 6).map((actor, i) => (
+                            <li
+                              key={actor.id}
+                              style={{ '--i': i } as React.CSSProperties}
+                              className="animate-fade-up flex min-w-0 flex-col items-center rounded-2xl border border-border bg-surface-elevated/60 p-3 text-center transition-all duration-300 ease-(--ease-out-expo) hover:-translate-y-1 hover:border-border-strong"
+                            >
+                              <div className="mb-2.5 flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm border border-border-strong bg-surface">
+                                {actor.profile_path ? (
+                                  <img
+                                    src={`https://image.tmdb.org/t/p/w185${actor.profile_path}`}
+                                    alt=""
+                                    className="h-full w-full object-cover"
+                                    loading="lazy"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = 'none';
+                                    }}
+                                  />
+                                ) : (
+                                  <User className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
+                                )}
+                              </div>
+                              <p className="w-full truncate text-xs font-semibold text-foreground">
+                                {actor.name}
+                              </p>
+                              <p className="mt-0.5 w-full truncate text-[11px] text-muted-foreground">
+                                {actor.character}
+                              </p>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </TabsPanel>
+
+                  <TabsPanel value="streaming" className={panelClass}>
+                    <StreamingInfo watchProviders={movie.watchProviders} />
+                  </TabsPanel>
+
+                  {hasSeasons && (
+                    <TabsPanel value="episodes" className={panelClass}>
+                      <EpisodeList
+                        seasons={movie.seasons!}
+                        seriesId={movie.id}
+                        onEpisodeSelect={setVideoUrl}
+                      />
+                    </TabsPanel>
+                  )}
+
+                  <TabsPanel value="reviews" className={panelClass}>
+                    <ReviewSection
+                      movieId={String(movie.id)}
+                      initialReviews={movie.reviews?.results ?? []}
+                    />
+                  </TabsPanel>
+                </div>
+              </Tabs>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

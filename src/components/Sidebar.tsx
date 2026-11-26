@@ -1,15 +1,16 @@
 import {
-  Home,
-  Flame,
-  Star,
-  Bookmark,
   Menu,
   X,
-  Film,
   ExternalLink,
   Search,
 } from 'lucide-react';
-import { useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   Drawer,
   DrawerBackdrop,
@@ -20,6 +21,9 @@ import {
 } from '@ui-sdk/react/drawer';
 import ThemeSwitcher from './ThemeSwitcher';
 import SearchBar from './SearchBar';
+import Logo, { LogoMark } from './nav/Logo';
+import WatchlistBadge from './nav/WatchlistBadge';
+import { NAV_ITEMS, PORTFOLIO_URL, FOCUS_RING } from './nav/navItems';
 import { useWatchlist } from '../hooks/useWatchlist';
 
 interface NavigationProps {
@@ -30,12 +34,160 @@ interface NavigationProps {
   onGenreSelect: (genreId: number, genreName: string) => void;
 }
 
-const NAV_ITEMS = [
-  { id: 'home', label: 'Home', icon: Home },
-  { id: 'trending', label: 'Trending', icon: Flame },
-  { id: 'top-rated', label: 'Top Rated', icon: Star },
-  { id: 'watchlist', label: 'Watchlist', icon: Bookmark },
-];
+/* ------------------------------------------------------------------ */
+/* Desktop nav with a sliding active pill                              */
+/* ------------------------------------------------------------------ */
+
+interface DesktopNavProps {
+  currentSection: string;
+  onSectionChange: (section: string) => void;
+  count: number;
+}
+
+function DesktopNav({ currentSection, onSectionChange, count }: DesktopNavProps) {
+  const navRef = useRef<HTMLElement>(null);
+  const itemRefs = useRef(new Map<string, HTMLButtonElement>());
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
+  const [animated, setAnimated] = useState(false);
+
+  const measure = useCallback(() => {
+    const el = itemRefs.current.get(currentSection);
+    setPill(el && el.offsetWidth > 0 ? { left: el.offsetLeft, width: el.offsetWidth } : null);
+  }, [currentSection]);
+
+  useLayoutEffect(() => {
+    measure();
+  }, [measure]);
+
+  // Enable the slide transition only after the first placement
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setAnimated(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  // Re-measure when the nav or any item changes size (fonts, badge, breakpoints)
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(nav);
+    itemRefs.current.forEach((el) => ro.observe(el));
+    return () => ro.disconnect();
+  }, [measure]);
+
+  return (
+    <nav
+      ref={navRef}
+      className="relative isolate hidden lg:flex items-center gap-0.5"
+      aria-label="Primary navigation"
+    >
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 -z-10 h-9 -translate-y-1/2 rounded-sm border border-border-strong bg-surface-elevated"
+        style={{
+          left: pill?.left ?? 0,
+          width: pill?.width ?? 0,
+          opacity: pill ? 1 : 0,
+          transition: animated
+            ? 'left 520ms var(--ease-out-expo), width 520ms var(--ease-out-expo), opacity 200ms ease'
+            : 'none',
+        }}
+      >
+        <span className="absolute inset-x-5 -bottom-px h-px bg-linear-to-r from-transparent via-brand to-transparent" />
+      </span>
+
+      {NAV_ITEMS.map((item) => {
+        const Icon = item.icon;
+        const active = currentSection === item.id;
+        return (
+          <button
+            key={item.id}
+            ref={(el) => {
+              if (el) itemRefs.current.set(item.id, el);
+              else itemRefs.current.delete(item.id);
+            }}
+            type="button"
+            onClick={() => onSectionChange(item.id)}
+            aria-current={active ? 'page' : undefined}
+            className={`group relative inline-flex h-9 items-center gap-2 rounded-sm px-3 xl:px-3.5 text-sm font-medium transition-colors duration-300 cursor-pointer ${FOCUS_RING} ${
+              active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Icon
+              aria-hidden="true"
+              className={`hidden xl:block h-4 w-4 transition-all duration-300 ease-(--ease-spring) ${
+                active ? 'text-brand scale-110' : 'group-hover:scale-110'
+              }`}
+            />
+            <span>{item.label}</span>
+            {item.id === 'watchlist' && <WatchlistBadge count={count} />}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile bottom tab bar with sliding indicator                        */
+/* ------------------------------------------------------------------ */
+
+function BottomTabs({ currentSection, onSectionChange, count }: DesktopNavProps) {
+  const index = NAV_ITEMS.findIndex((i) => i.id === currentSection);
+  return (
+    <nav
+      aria-label="Mobile bottom navigation"
+      className="fixed inset-x-0 bottom-0 z-40 md:hidden border-t border-border bg-glass backdrop-blur-xl pb-safe"
+    >
+      <div className="relative mx-auto grid h-14 max-w-md grid-cols-4 px-2">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-2 top-0 h-full w-[calc((100%-1rem)/4)] transition-[transform,opacity] duration-500 ease-(--ease-out-expo)"
+          style={{
+            transform: `translateX(${Math.max(index, 0) * 100}%)`,
+            opacity: index < 0 ? 0 : 1,
+          }}
+        >
+          <span className="absolute inset-x-1/2 top-0 h-0.5 w-8 -translate-x-1/2 rounded-full bg-brand shadow-[0_0_12px_2px_var(--brand-glow)]" />
+          <span className="absolute inset-x-2 inset-y-1 rounded-xl bg-linear-to-b from-brand-soft to-transparent" />
+        </span>
+
+        {NAV_ITEMS.map((item) => {
+          const Icon = item.icon;
+          const active = currentSection === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onSectionChange(item.id)}
+              aria-current={active ? 'page' : undefined}
+              className={`relative flex flex-col items-center justify-center gap-0.5 rounded-xl text-[11px] font-medium transition-colors duration-300 cursor-pointer active:scale-95 ${FOCUS_RING} ${
+                active ? 'text-brand' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <span className="relative">
+                <Icon
+                  aria-hidden="true"
+                  className={`h-5 w-5 transition-transform duration-500 ease-(--ease-spring) ${
+                    active ? '-translate-y-0.5 scale-110' : ''
+                  }`}
+                />
+                {item.id === 'watchlist' && (
+                  <WatchlistBadge count={count} className="absolute -right-3 -top-2 !h-4 !min-w-4 !px-1 !text-[9px]" />
+                )}
+              </span>
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Header                                                              */
+/* ------------------------------------------------------------------ */
 
 export default function Sidebar({
   currentSection,
@@ -46,15 +198,48 @@ export default function Sidebar({
 }: NavigationProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const progressRef = useRef<HTMLSpanElement>(null);
   const { watchlist } = useWatchlist();
+  const count = watchlist.length;
+
+  // Passive scroll listener: hairline + shadow once scrolled, accent progress line
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 8);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = max > 0 ? Math.min(Math.max(y / max, 0), 1) : 0;
+      if (progressRef.current) {
+        progressRef.current.style.transform = `scaleX(${ratio})`;
+      }
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+
+  const iconButton = `inline-flex h-9 w-9 items-center justify-center rounded-sm border border-border bg-surface-elevated/70 text-foreground hover:bg-surface-hover hover:border-border-strong active:scale-90 transition-all duration-200 cursor-pointer ${FOCUS_RING}`;
 
   return (
     <>
-      {/* Sticky Glass Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-border bg-glass backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          {/* Left: Mobile Drawer Trigger + Brand */}
-          <div className="flex items-center gap-2.5 sm:gap-6">
+      {/* Sticky glass header */}
+      <header
+        className={`sticky top-0 z-40 w-full border-b backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-300 ${
+          scrolled
+            ? 'border-border bg-glass shadow-[0_12px_32px_-20px_rgba(0,0,0,0.55)]'
+            : 'border-transparent bg-glass/60'
+        }`}
+      >
+        <div
+          className={`mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 h-16`}
+        >
+          {/* Left: drawer trigger, brand, desktop nav */}
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-4 lg:gap-6">
             <Drawer
               side="left"
               open={drawerOpen}
@@ -62,211 +247,165 @@ export default function Sidebar({
             >
               <DrawerTrigger
                 aria-label="Open navigation menu"
-                className="inline-flex lg:hidden h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
+                className={`lg:hidden ${iconButton}`}
               >
-                <Menu className="h-4 w-4" />
+                <Menu className="h-4 w-4" aria-hidden="true" />
               </DrawerTrigger>
 
-              <DrawerBackdrop className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm" />
-              <DrawerContent className="z-50 flex h-full w-72 max-w-[82vw] flex-col border-r border-border-strong bg-surface p-5 shadow-2xl">
-                <div className="flex items-center justify-between pb-5 border-b border-border">
+              <DrawerBackdrop className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
+              <DrawerContent className="relative z-50 flex h-full w-80 max-w-[85vw] flex-col overflow-hidden rounded-r-3xl border-r border-border-strong bg-surface p-5 pb-safe shadow-2xl">
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-sm bg-brand-soft blur-3xl"
+                />
+
+                <div className="relative flex items-center justify-between border-b border-border pb-5">
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-brand-foreground shadow-sm">
-                      <Film className="h-4 w-4" />
-                    </span>
-                    <DrawerTitle className="font-display text-lg font-bold tracking-tight text-foreground">
-                      MovieStream
+                    <LogoMark />
+                    <DrawerTitle className="font-display text-lg font-extrabold tracking-tight text-foreground">
+                      Movie<span className="text-brand">Stream</span>
                     </DrawerTitle>
                   </div>
                   <DrawerClose
                     aria-label="Close navigation menu"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer"
+                    className={`inline-flex h-9 w-9 items-center justify-center rounded-sm text-muted-foreground hover:bg-surface-hover hover:text-foreground hover:rotate-90 transition-all duration-300 cursor-pointer ${FOCUS_RING}`}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4" aria-hidden="true" />
                   </DrawerClose>
                 </div>
 
-                <nav className="mt-5 flex-1 space-y-1.5" aria-label="Mobile menu">
-                  {NAV_ITEMS.map((item) => {
+                <nav className="relative mt-5 flex-1 space-y-1.5" aria-label="Mobile menu">
+                  {NAV_ITEMS.map((item, i) => {
                     const Icon = item.icon;
                     const active = currentSection === item.id;
                     return (
                       <button
                         key={item.id}
                         type="button"
+                        aria-current={active ? 'page' : undefined}
                         onClick={() => {
                           onSectionChange(item.id);
                           setDrawerOpen(false);
                         }}
-                        className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors cursor-pointer ${
+                        style={{ animationDelay: `${140 + i * 60}ms` }}
+                        className={`group relative flex w-full items-center justify-between overflow-hidden rounded-xl px-4 py-3 text-[15px] font-medium transition-colors duration-200 cursor-pointer animate-[fade-up_520ms_var(--ease-out-expo)_both] ${FOCUS_RING} ${
                           active
-                            ? 'bg-brand text-brand-foreground'
+                            ? 'bg-brand-soft text-foreground'
                             : 'text-muted-foreground hover:bg-surface-elevated hover:text-foreground'
                         }`}
                       >
-                        <span className="flex items-center gap-3">
-                          <Icon className="h-4 w-4" />
+                        <span
+                          aria-hidden="true"
+                          className={`absolute left-0 top-2.5 bottom-2.5 w-[3px] rounded-sm bg-brand transition-transform duration-500 ease-(--ease-out-expo) origin-center ${
+                            active ? 'scale-y-100' : 'scale-y-0'
+                          }`}
+                        />
+                        <span className="flex items-center gap-3.5">
+                          <Icon
+                            aria-hidden="true"
+                            className={`h-[18px] w-[18px] transition-transform duration-300 ease-(--ease-spring) group-hover:scale-110 ${
+                              active ? 'text-brand' : ''
+                            }`}
+                          />
                           {item.label}
                         </span>
-                        {item.id === 'watchlist' && watchlist.length > 0 && (
-                          <span
-                            className={`rounded-full px-2 py-0.5 font-mono text-[11px] ${
-                              active
-                                ? 'bg-white/20 text-white'
-                                : 'bg-surface-hover text-foreground'
-                            }`}
-                          >
-                            {watchlist.length}
-                          </span>
-                        )}
+                        {item.id === 'watchlist' && <WatchlistBadge count={count} />}
                       </button>
                     );
                   })}
                 </nav>
 
-                <div className="mt-auto space-y-4 border-t border-border pt-4">
-                  <div className="flex items-center justify-between">
+                <div
+                  className="relative mt-auto space-y-4 border-t border-border pt-4 animate-[fade-up_520ms_var(--ease-out-expo)_both]"
+                  style={{ animationDelay: '420ms' }}
+                >
+                  <div className="flex items-center justify-between gap-3">
                     <span className="text-xs font-medium text-muted-foreground">
                       Appearance
                     </span>
                     <ThemeSwitcher />
                   </div>
                   <a
-                    href="https://imrahul05.vercel.app"
+                    href={PORTFOLIO_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-surface-elevated px-4 py-2.5 text-sm font-medium text-foreground hover:bg-surface-hover transition-colors"
+                    className={`flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-surface-elevated px-4 py-2.5 text-sm font-medium text-foreground hover:bg-surface-hover hover:border-border-strong transition-colors ${FOCUS_RING}`}
                   >
                     <span>Visit Portfolio</span>
-                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
                   </a>
                 </div>
               </DrawerContent>
             </Drawer>
 
-            {/* Brand Logo */}
-            <button
-              type="button"
-              onClick={() => onSectionChange('home')}
-              className="flex items-center gap-2.5 group cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand rounded-lg"
-            >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-brand-foreground shadow-sm transition-transform group-hover:scale-105">
-                <Film className="h-4 w-4" />
-              </span>
-              <span className="font-display text-lg font-extrabold tracking-tight text-foreground">
-                Movie<span className="text-brand">Stream</span>
-              </span>
-            </button>
+            <Logo onClick={() => onSectionChange('home')} />
 
-            {/* Desktop Inline Navigation */}
-            <nav className="hidden lg:flex items-center gap-1" aria-label="Primary navigation">
-              {NAV_ITEMS.map((item) => {
-                const Icon = item.icon;
-                const active = currentSection === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => onSectionChange(item.id)}
-                    className={`relative inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium transition-colors cursor-pointer ${
-                      active
-                        ? 'bg-surface-elevated text-foreground border border-border-strong'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-surface-elevated/60'
-                    }`}
-                  >
-                    <Icon
-                      className={`h-4 w-4 ${active ? 'text-brand' : 'text-current'}`}
-                    />
-                    <span>{item.label}</span>
-                    {item.id === 'watchlist' && watchlist.length > 0 && (
-                      <span className="ml-0.5 rounded-full bg-brand/15 px-1.5 py-0.2 font-mono text-[11px] font-semibold text-brand">
-                        {watchlist.length}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
+            <DesktopNav
+              currentSection={currentSection}
+              onSectionChange={onSectionChange}
+              count={count}
+            />
           </div>
 
-          {/* Right: Search, Theme Switcher, Portfolio */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Desktop/Tablet Search Trigger */}
-            <div className="hidden sm:block">
-              <SearchBar
-                open={searchOpen}
-                onOpenChange={setSearchOpen}
-                onSearch={onSearch}
-                onMovieSelect={onMovieSelect}
-                onNavigate={onSectionChange}
-                onGenreSelect={onGenreSelect}
-              />
-            </div>
+          {/* Right: search, theme, portfolio */}
+          <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+            <SearchBar
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              onSearch={onSearch}
+              onMovieSelect={onMovieSelect}
+              onNavigate={onSectionChange}
+              onGenreSelect={onGenreSelect}
+            />
 
-            {/* Mobile Search Icon Button */}
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
               aria-label="Open search"
-              className="inline-flex sm:hidden h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
+              className={`sm:hidden ${iconButton}`}
             >
-              <Search className="h-4 w-4" />
+              <Search className="h-4 w-4" aria-hidden="true" />
             </button>
 
-            {/* Theme Switcher: Segmented on md+, compact cycle button on mobile */}
             <div className="hidden md:block">
-              <ThemeSwitcher />
+              <ThemeSwitcher labelsFrom="xl" />
             </div>
             <div className="md:hidden">
               <ThemeSwitcher compact />
             </div>
 
-            {/* Portfolio CTA on xl */}
             <a
-              href="https://imrahul05.vercel.app"
+              href={PORTFOLIO_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden xl:inline-flex items-center gap-1.5 h-9 rounded-full border border-border bg-surface px-3.5 text-xs font-semibold text-foreground hover:bg-surface-hover transition-colors"
+              className={`hidden 2xl:inline-flex h-9 items-center gap-1.5 rounded-sm border border-border bg-surface-elevated/70 px-3.5 text-xs font-semibold text-foreground hover:bg-surface-hover hover:border-border-strong transition-colors ${FOCUS_RING}`}
             >
               <span>Portfolio</span>
-              <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+              <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
             </a>
           </div>
         </div>
+
+        {/* Scroll progress accent line */}
+        <span
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-x-0 -bottom-px h-px overflow-hidden transition-opacity duration-300 ${
+            scrolled ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <span
+            ref={progressRef}
+            className="block h-full w-full origin-left bg-brand shadow-[0_0_10px_1px_var(--brand-glow)] will-change-transform"
+            style={{ transform: 'scaleX(0)' }}
+          />
+        </span>
       </header>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav
-        aria-label="Mobile bottom navigation"
-        className="fixed bottom-0 inset-x-0 z-40 lg:hidden border-t border-border bg-glass backdrop-blur-xl pb-safe"
-      >
-        <div className="grid grid-cols-4 h-14 max-w-md mx-auto px-2">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const active = currentSection === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => onSectionChange(item.id)}
-                className={`relative flex flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors cursor-pointer ${
-                  active ? 'text-brand' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <div className="relative">
-                  <Icon className="h-5 w-5" />
-                  {item.id === 'watchlist' && watchlist.length > 0 && (
-                    <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 font-mono text-[9px] font-bold text-brand-foreground">
-                      {watchlist.length}
-                    </span>
-                  )}
-                </div>
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+      <BottomTabs
+        currentSection={currentSection}
+        onSectionChange={onSectionChange}
+        count={count}
+      />
     </>
   );
 }
