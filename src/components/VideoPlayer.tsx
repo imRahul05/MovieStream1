@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Play, Film, Clapperboard, Tv } from 'lucide-react';
-import { fetchTrailer } from '../services/video';
+import { fetchTrailer, getVideoUrl } from '../services/video';
 import type { VideoResult } from '../types/movie';
 import { focusRing } from './details/dialogStyles';
 
@@ -48,7 +48,7 @@ export default function VideoPlayer({
   }, [mediaId]);
 
   const streamUrl =
-    videoUrl || `https://vidsrc.xyz/embed/${mediaType}?tmdb=${mediaId}`;
+    videoUrl || getVideoUrl(mediaType, mediaId);
   const trailerUrl = trailer
     ? `https://www.youtube.com/embed/${trailer.key}?autoplay=1&rel=0`
     : '';
