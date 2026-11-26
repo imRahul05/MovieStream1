@@ -5,7 +5,7 @@
 @custom-variant dark (&:where(.dark, .dark *, .black, .black *));
 
 :root {
-  /* Light — paper white, ink black, single electric-violet accent */
+  /* Light — paper white, ink black, single ember-orange accent */
   --background: #f7f7f8;
   --foreground: #0b0b0f;
   --surface: #ffffff;
@@ -15,13 +15,13 @@
   --muted-foreground: #5b5b66;
   --border: rgba(11, 11, 15, 0.08);
   --border-strong: rgba(11, 11, 15, 0.16);
-  --brand: #5b3df5;
-  --brand-hover: #4a2ee0;
+  --brand: #d24a0e;
+  --brand-hover: #b53e09;
   --brand-foreground: #ffffff;
-  --brand-soft: rgba(91, 61, 245, 0.12);
-  --brand-glow: rgba(91, 61, 245, 0.35);
-  --gold: #b45309;
-  --ring: rgba(91, 61, 245, 0.45);
+  --brand-soft: rgba(210, 74, 14, 0.10);
+  --brand-glow: rgba(210, 74, 14, 0.30);
+  --gold: #a16207;
+  --ring: rgba(210, 74, 14, 0.45);
   --glass: rgba(247, 247, 248, 0.78);
   --radius: 0.875rem;
 }
@@ -37,13 +37,13 @@
   --muted-foreground: #9a9aa8;
   --border: rgba(255, 255, 255, 0.07);
   --border-strong: rgba(255, 255, 255, 0.15);
-  --brand: #8b7bff;
-  --brand-hover: #a194ff;
+  --brand: #ff6a2b;
+  --brand-hover: #ff8a55;
   --brand-foreground: #0b0b0f;
-  --brand-soft: rgba(139, 123, 255, 0.14);
-  --brand-glow: rgba(139, 123, 255, 0.45);
+  --brand-soft: rgba(255, 106, 43, 0.14);
+  --brand-glow: rgba(255, 106, 43, 0.45);
   --gold: #f5c451;
-  --ring: rgba(139, 123, 255, 0.55);
+  --ring: rgba(255, 106, 43, 0.55);
   --glass: rgba(12, 12, 16, 0.72);
 }
 
@@ -58,13 +58,13 @@
   --muted-foreground: #8e8e9a;
   --border: rgba(255, 255, 255, 0.07);
   --border-strong: rgba(255, 255, 255, 0.16);
-  --brand: #8b7bff;
-  --brand-hover: #a194ff;
+  --brand: #ff6a2b;
+  --brand-hover: #ff8a55;
   --brand-foreground: #0b0b0f;
-  --brand-soft: rgba(139, 123, 255, 0.14);
-  --brand-glow: rgba(139, 123, 255, 0.5);
+  --brand-soft: rgba(255, 106, 43, 0.14);
+  --brand-glow: rgba(255, 106, 43, 0.5);
   --gold: #f5c451;
-  --ring: rgba(139, 123, 255, 0.6);
+  --ring: rgba(255, 106, 43, 0.6);
   --glass: rgba(0, 0, 0, 0.7);
 }
 
