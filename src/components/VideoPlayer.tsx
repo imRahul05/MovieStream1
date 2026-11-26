@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Play, Film } from 'lucide-react';
+import { Play, Film, Clapperboard, Tv } from 'lucide-react';
 import { fetchTrailer } from '../services/video';
 import type { VideoResult } from '../types/movie';
+import { focusRing } from './details/dialogStyles';
 
 interface VideoPlayerProps {
   mediaId: string;
@@ -11,6 +12,11 @@ interface VideoPlayerProps {
   imdbId?: string;
 }
 
+type Mode = 'poster' | 'trailer' | 'stream';
+
+const IFRAME_ALLOW =
+  'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+
 export default function VideoPlayer({
   mediaId,
   mediaType,
@@ -18,11 +24,19 @@ export default function VideoPlayer({
   posterPath,
 }: VideoPlayerProps) {
   const [trailer, setTrailer] = useState<VideoResult | null>(null);
-  const [mode, setMode] = useState<'poster' | 'trailer' | 'stream'>('poster');
+  const [mode, setMode] = useState<Mode>('poster');
+  const [loadedSrc, setLoadedSrc] = useState('');
+  const [imgFailed, setImgFailed] = useState(false);
+  const [prevUrl, setPrevUrl] = useState(videoUrl);
+
+  // Picking another episode jumps straight into the stream.
+  if (prevUrl !== videoUrl) {
+    setPrevUrl(videoUrl);
+    setMode('stream');
+  }
 
   useEffect(() => {
     let cancelled = false;
-    setMode('poster');
     const loadTrailer = async () => {
       const trailerData = await fetchTrailer(mediaId);
       if (!cancelled) setTrailer(trailerData);
@@ -35,67 +49,123 @@ export default function VideoPlayer({
 
   const streamUrl =
     videoUrl || `https://vidsrc.xyz/embed/${mediaType}?tmdb=${mediaId}`;
+  const trailerUrl = trailer
+    ? `https://www.youtube.com/embed/${trailer.key}?autoplay=1&rel=0`
+    : '';
+  const activeSrc = mode === 'stream' ? streamUrl : mode === 'trailer' ? trailerUrl : '';
+  const isEmbed = mode !== 'poster' && !!activeSrc;
+  const loaded = isEmbed && loadedSrc === activeSrc;
+  const status = !isEmbed ? 'Ready' : loaded ? 'Live' : 'Connecting';
+  const showPoster = !!posterPath && !imgFailed;
+
+  const chip = (active: boolean) =>
+    `inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-300 ease-(--ease-out-expo) cursor-pointer ${focusRing} ${
+      active
+        ? 'bg-brand text-brand-foreground shadow-[0_0_18px_var(--brand-glow)]'
+        : 'text-muted-foreground hover:text-foreground hover:bg-surface-hover'
+    }`;
 
   return (
-    <div className="relative aspect-video w-full overflow-hidden bg-black">
-      {mode === 'stream' ? (
-        <iframe
-          src={streamUrl}
-          title="Movie Stream Player"
-          className="absolute inset-0 h-full w-full"
-          allowFullScreen
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          referrerPolicy="strict-origin-when-cross-origin"
-          loading="lazy"
-        />
-      ) : mode === 'trailer' && trailer ? (
-        <iframe
-          src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&rel=0`}
-          title={trailer.name || 'Official Trailer'}
-          className="absolute inset-0 h-full w-full"
-          allowFullScreen
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          loading="lazy"
-        />
-      ) : (
-        <>
-          {posterPath ? (
-            <img
-              src={`https://image.tmdb.org/t/p/original${posterPath}`}
-              alt="Backdrop preview"
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-neutral-950 text-neutral-500">
-              <Film className="h-12 w-12 opacity-40" />
+    <div>
+      <div className="grain relative aspect-video w-full overflow-hidden bg-black sm:rounded-2xl sm:border sm:border-border-strong">
+        {isEmbed && (
+          <>
+            {/* Loading skeleton sits behind the iframe */}
+            <div className="skeleton absolute inset-0" aria-hidden="true" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" aria-hidden="true">
+              <span className="blip-dot" />
+              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                Connecting
+              </span>
             </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-        </>
-      )}
+            <iframe
+              key={activeSrc}
+              src={activeSrc}
+              title={mode === 'trailer' ? trailer?.name || 'Official Trailer' : 'Movie Stream Player'}
+              className={`absolute inset-0 h-full w-full transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+              allowFullScreen
+              allow={IFRAME_ALLOW}
+              referrerPolicy={mode === 'stream' ? 'strict-origin-when-cross-origin' : undefined}
+              onLoad={() => setLoadedSrc(activeSrc)}
+            />
+          </>
+        )}
 
-      {/* Playback Mode Controls */}
-      <div className="absolute bottom-3 left-3 sm:bottom-5 sm:left-5 z-20 flex flex-wrap items-center gap-2.5">
-        {mode !== 'stream' && (
+        {!isEmbed && (
+          <>
+            {showPoster ? (
+              <img
+                src={`https://image.tmdb.org/t/p/w1280${posterPath}`}
+                alt=""
+                className="animate-ken-burns h-full w-full object-cover"
+                onError={() => setImgFailed(true)}
+              />
+            ) : (
+              <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_30%_10%,var(--brand-soft),transparent_60%),linear-gradient(135deg,#15151b,#050507)]">
+                <div className="absolute inset-y-0 w-1/4 bg-linear-to-r from-transparent via-white/6 to-transparent animate-scan" aria-hidden="true" />
+                <Film className="absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 text-white/15" aria-hidden="true" />
+              </div>
+            )}
+            <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/25 to-black/30" />
+
+            <button
+              type="button"
+              onClick={() => setMode('stream')}
+              aria-label={`Watch ${mediaType === 'movie' ? 'movie' : 'episode'}`}
+              className={`group/play absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full ${focusRing} animate-pop`}
+            >
+              <span className="relative grid size-16 place-items-center rounded-full bg-brand text-brand-foreground shadow-[0_0_44px_var(--brand-glow)] transition-transform duration-300 ease-(--ease-spring) group-hover/play:scale-110 sm:size-20">
+                <span className="animate-blip absolute inset-0 rounded-full bg-brand" aria-hidden="true" />
+                <Play className="relative h-6 w-6 translate-x-0.5 fill-current sm:h-7 sm:w-7" aria-hidden="true" />
+              </span>
+            </button>
+
+            <p className="absolute bottom-3 left-4 font-mono text-[11px] uppercase tracking-[0.2em] text-white/80 sm:bottom-4 sm:left-5">
+              Press play
+            </p>
+          </>
+        )}
+      </div>
+
+      {/* Status + source switch */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3 sm:px-1">
+        <div className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground" role="status">
+          {status === 'Ready' ? (
+            <span className="inline-block size-2 rounded-full bg-muted-foreground/60" aria-hidden="true" />
+          ) : (
+            <span className="blip-dot" aria-hidden="true" />
+          )}
+          <span className="text-foreground">{status}</span>
+          <span aria-hidden="true">/</span>
+          <span>{mode === 'trailer' ? 'Trailer' : mode === 'stream' ? 'Stream' : 'Preview'}</span>
+        </div>
+
+        <div
+          role="group"
+          aria-label="Playback source"
+          className="inline-flex items-center gap-1 rounded-full border border-border bg-surface-elevated p-1"
+        >
           <button
             type="button"
+            aria-pressed={mode === 'stream'}
             onClick={() => setMode('stream')}
-            className="inline-flex items-center gap-2 rounded-full bg-brand hover:bg-brand-hover px-5 py-2.5 text-xs sm:text-sm font-semibold text-brand-foreground shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+            className={chip(mode === 'stream')}
           >
-            <Play className="h-4 w-4 fill-current" />
-            <span>Watch {mediaType === 'movie' ? 'Movie' : 'Episode'}</span>
+            <Tv className="h-3.5 w-3.5" aria-hidden="true" />
+            {mediaType === 'movie' ? 'Movie' : 'Episode'}
           </button>
-        )}
-        {trailer && mode !== 'trailer' && (
-          <button
-            type="button"
-            onClick={() => setMode('trailer')}
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/65 hover:bg-black/85 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white backdrop-blur-md transition-colors cursor-pointer"
-          >
-            <Film className="h-4 w-4" />
-            <span>Play Trailer</span>
-          </button>
-        )}
+          {trailer && (
+            <button
+              type="button"
+              aria-pressed={mode === 'trailer'}
+              onClick={() => setMode('trailer')}
+              className={chip(mode === 'trailer')}
+            >
+              <Clapperboard className="h-3.5 w-3.5" aria-hidden="true" />
+              Trailer
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

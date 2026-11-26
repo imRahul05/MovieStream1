@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bookmark, ArrowLeft, SearchX, ChevronRight } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import MovieGrid from './components/MovieGrid';
 import MovieDetailsModal from './components/MovieDetails';
 import Sidebar from './components/Sidebar';
@@ -86,17 +87,60 @@ function App() {
   };
 
   const renderSkeleton = () => (
-    <div className="space-y-4 animate-pulse">
-      <div className="h-7 w-44 rounded-lg bg-surface-elevated" />
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+    <div className="space-y-6" role="status" aria-label="Loading movies">
+      <div className="space-y-2.5">
+        <div className="skeleton h-8 w-52 rounded-lg" />
+        <div className="skeleton h-4 w-72 max-w-full rounded-md" />
+      </div>
+      <div className="grid grid-cols-2 gap-x-3.5 gap-y-7 sm:grid-cols-3 sm:gap-x-5 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {Array.from({ length: 12 }).map((_, i) => (
           <div key={i} className="space-y-2.5">
-            <div className="aspect-[2/3] rounded-xl bg-surface-elevated border border-border" />
-            <div className="h-4 w-3/4 rounded bg-surface-elevated" />
-            <div className="h-3 w-1/3 rounded bg-surface-elevated" />
+            <div className="skeleton aspect-[2/3] rounded-2xl border border-border" />
+            <div className="skeleton h-4 w-3/4 rounded-md" />
+            <div className="skeleton h-3 w-1/3 rounded-md" />
           </div>
         ))}
       </div>
+    </div>
+  );
+
+  const renderEmpty = ({
+    icon: Icon,
+    title,
+    body,
+    cta,
+    onCta,
+  }: {
+    icon: LucideIcon;
+    title: string;
+    body: React.ReactNode;
+    cta: string;
+    onCta: () => void;
+  }) => (
+    <div className="relative my-10 flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-dashed border-border-strong bg-surface px-6 py-14 text-center sm:my-14 sm:py-20">
+      <div
+        className="pointer-events-none absolute left-1/2 top-0 h-48 w-72 -translate-x-1/2 rounded-full bg-brand-soft blur-3xl"
+        aria-hidden="true"
+      />
+      <div className="relative mb-6 animate-float">
+        <span className="absolute inset-0 rounded-3xl border border-brand/40 animate-blip" aria-hidden="true" />
+        <span className="relative flex h-16 w-16 items-center justify-center rounded-3xl border border-border-strong bg-surface-elevated text-brand animate-glow-pulse">
+          <Icon className="h-7 w-7" aria-hidden="true" />
+        </span>
+      </div>
+      <h2 className="relative font-display text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">
+        {title}
+      </h2>
+      <p className="relative mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+        {body}
+      </p>
+      <button
+        type="button"
+        onClick={onCta}
+        className="shine relative mt-7 min-h-11 cursor-pointer rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground shadow-lg shadow-brand-glow transition-all duration-300 hover:scale-[1.04] hover:bg-brand-hover active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      >
+        {cta}
+      </button>
     </div>
   );
 
@@ -109,9 +153,9 @@ function App() {
           <button
             type="button"
             onClick={() => handleSectionChange('home')}
-            className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
+            className="group mb-2 inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full border border-border-strong bg-surface px-4 text-xs font-medium text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
+            <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
             <span>Back to Home</span>
           </button>
 
@@ -124,22 +168,13 @@ function App() {
               showControls
             />
           ) : (
-            <div className="my-12 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-surface p-12 text-center">
-              <SearchX className="h-10 w-10 text-muted-foreground/50 mb-3" />
-              <h2 className="font-display text-lg font-bold text-foreground">
-                No movies found
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-                We couldn&rsquo;t find any titles matching your search. Try another title or explore trending films.
-              </p>
-              <button
-                type="button"
-                onClick={() => handleSectionChange('home')}
-                className="mt-5 rounded-full bg-brand hover:bg-brand-hover px-5 py-2.5 text-xs font-semibold text-brand-foreground transition-colors cursor-pointer"
-              >
-                Explore Home
-              </button>
-            </div>
+            renderEmpty({
+              icon: SearchX,
+              title: 'No movies found',
+              body: 'We couldn\u2019t find any titles matching your search. Try another title or explore trending films.',
+              cta: 'Explore Home',
+              onCta: () => handleSectionChange('home'),
+            })
           )}
         </div>
       );
@@ -176,42 +211,36 @@ function App() {
             showControls
           />
         ) : (
-          <div className="my-12 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-surface p-12 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-elevated border border-border text-muted-foreground mb-4">
-              <Bookmark className="h-5 w-5" />
-            </span>
-            <h2 className="font-display text-xl font-bold text-foreground">
-              Your watchlist is empty
-            </h2>
-            <p className="mt-1.5 text-sm text-muted-foreground max-w-sm">
-              Tap the <span className="font-semibold text-foreground">+</span> icon on any movie poster to save it here for quick access.
-            </p>
-            <button
-              type="button"
-              onClick={() => handleSectionChange('trending')}
-              className="mt-5 rounded-full bg-brand hover:bg-brand-hover px-5 py-2.5 text-xs font-semibold text-brand-foreground transition-colors cursor-pointer"
-            >
-              Browse Trending
-            </button>
-          </div>
+          renderEmpty({
+            icon: Bookmark,
+            title: 'Your watchlist is empty',
+            body: (
+              <>
+                Tap the <span className="font-semibold text-foreground">+</span> icon on any movie poster to save it here for quick access.
+              </>
+            ),
+            cta: 'Browse Trending',
+            onCta: () => handleSectionChange('trending'),
+          })
         );
       default:
         return (
-          <div className="space-y-4">
+          <div className="space-y-2">
             <MovieGrid
               title="Trending Now"
               subtitle="Fresh releases and buzzing titles this week"
               movies={trending}
               onMovieClick={handleMovieClick}
               showControls
+              rail
               action={
                 <button
                   type="button"
                   onClick={() => handleSectionChange('trending')}
-                  className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-brand transition-colors cursor-pointer"
+                  className="group inline-flex min-h-10 cursor-pointer items-center gap-1 rounded-full px-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
                   <span>View All</span>
-                  <ChevronRight className="h-3.5 w-3.5" />
+                  <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                 </button>
               }
             />
@@ -221,14 +250,15 @@ function App() {
               subtitle="Critically acclaimed essentials"
               movies={topRated}
               onMovieClick={handleMovieClick}
+              rail
               action={
                 <button
                   type="button"
                   onClick={() => handleSectionChange('top-rated')}
-                  className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-brand transition-colors cursor-pointer"
+                  className="group inline-flex min-h-10 cursor-pointer items-center gap-1 rounded-full px-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
                   <span>View All</span>
-                  <ChevronRight className="h-3.5 w-3.5" />
+                  <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                 </button>
               }
             />
@@ -239,6 +269,7 @@ function App() {
                 subtitle="Pick up where you left off"
                 movies={watchlist}
                 onMovieClick={handleMovieClick}
+                rail
               />
             )}
           </div>
@@ -259,13 +290,29 @@ function App() {
       {/* Full-bleed edge-to-edge Hero on Home */}
       {currentSection === 'home' &&
         (isLoading ? (
-          <div className="w-full min-h-[460px] sm:min-h-[540px] lg:min-h-[620px] xl:min-h-[680px] bg-surface-elevated border-b border-border animate-pulse" />
+          <div
+            className="skeleton relative flex h-[clamp(540px,86svh,780px)] w-full items-end border-b border-border lg:h-[clamp(580px,80svh,820px)]"
+            role="status"
+            aria-label="Loading featured film"
+          >
+            <div className="mx-auto w-full max-w-[1440px] space-y-4 px-4 pb-10 sm:px-6 lg:px-8">
+              <div className="h-7 w-36 rounded-full bg-surface-hover/70" />
+              <div className="h-12 w-3/4 max-w-xl rounded-xl bg-surface-hover/70" />
+              <div className="h-4 w-full max-w-md rounded-md bg-surface-hover/70" />
+              <div className="h-12 w-40 rounded-full bg-surface-hover/70" />
+            </div>
+          </div>
         ) : trending.length > 0 ? (
           <FeaturedMovie movies={trending} onMovieClick={handleMovieClick} />
         ) : null)}
 
-      <main className="flex-1 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-5 sm:pt-7 pb-8">
-        {renderContent()}
+      <main className="flex-1 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-8">
+        <div
+          key={isLoading ? 'loading' : currentSection}
+          className={currentSection === 'home' ? 'animate-fade-in' : 'animate-blur-in'}
+        >
+          {renderContent()}
+        </div>
       </main>
 
       <DevelopmentBanner />

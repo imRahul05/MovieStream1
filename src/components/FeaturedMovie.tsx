@@ -1,5 +1,5 @@
-import { Play, Star, Clock, Bookmark, Check, X, Film } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Play, Star, Clock, Bookmark, Check, X, Film, Flame } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Toggle } from '@ui-sdk/react/toggle';
 import type { Movie, MovieDetails } from '../types/movie';
 import { fetchMovieDetails } from '../services/api';
@@ -10,24 +10,106 @@ interface FeaturedMovieProps {
   onMovieClick: (movieId: number) => void;
 }
 
+/** Time each slide stays on screen before auto-advancing. */
+const SLIDE_MS = 8000;
+const SWIPE_THRESHOLD = 48;
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function Thumb({ path }: { path: string | null | undefined }) {
+  const [failed, setFailed] = useState(false);
+  if (!path || failed) {
+    return (
+      <span className="flex h-full w-full items-center justify-center text-white/60">
+        <Film className="h-4 w-4" aria-hidden="true" />
+      </span>
+    );
+  }
+  return (
+    <img
+      src={`https://image.tmdb.org/t/p/w300${path}`}
+      alt=""
+      loading="lazy"
+      onError={() => setFailed(true)}
+      className="h-full w-full object-cover transition-transform duration-500 group-hover/t:scale-110"
+    />
+  );
+}
+
+function Backdrop({ movie, animate }: { movie: Movie; animate: boolean }) {
+  const [failed, setFailed] = useState(false);
+  const hasImage = Boolean(movie.backdrop_path) && !failed;
+  return (
+    <div className={`absolute inset-0 overflow-hidden ${animate ? 'animate-blur-in' : ''}`}>
+      {hasImage ? (
+        <img
+          src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
+          alt=""
+          onError={() => setFailed(true)}
+          className="h-full w-full animate-ken-burns object-cover object-center"
+        />
+      ) : (
+        <div className="relative h-full w-full bg-[radial-gradient(ellipse_at_70%_20%,var(--brand-glow),transparent_60%),linear-gradient(160deg,#16161d,#050507)]">
+          <Film
+            className="absolute right-[8%] top-[18%] h-40 w-40 animate-float text-white/[0.06] sm:h-64 sm:w-64"
+            strokeWidth={0.75}
+            aria-hidden="true"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMovieProps) {
   const featuredPool = movies.slice(0, 4);
+  const count = featuredPool.length;
   const [activeIndex, setActiveIndex] = useState(0);
-  const [movie, setMovie] = useState<MovieDetails | null>(null);
+  const [prevIndex, setPrevIndex] = useState<number | null>(null);
+  const [details, setDetails] = useState<MovieDetails | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [reduced] = useState(prefersReducedMotion);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
 
   const activeBase = featuredPool[activeIndex] ?? movies[0];
+  const movie = details && details.id === activeBase?.id ? details : null;
 
+  const goTo = useCallback(
+    (next: number) => {
+      if (count === 0) return;
+      const target = ((next % count) + count) % count;
+      setActiveIndex((cur) => {
+        if (cur === target) return cur;
+        setPrevIndex(cur);
+        return target;
+      });
+    },
+    [count]
+  );
+
+  // Drop the outgoing backdrop layer once the crossfade has finished.
   useEffect(() => {
-    if (!activeBase) return;
+    if (prevIndex === null) return;
+    const t = window.setTimeout(() => setPrevIndex(null), 1100);
+    return () => window.clearTimeout(t);
+  }, [prevIndex]);
+
+  const activeId = activeBase?.id;
+  useEffect(() => {
+    if (activeId === undefined) return;
     let cancelled = false;
     setIsPlaying(false);
 
     const loadMovie = async () => {
       try {
-        const details = await fetchMovieDetails(String(activeBase.id));
-        if (!cancelled) setMovie(details);
+        const d = await fetchMovieDetails(String(activeId));
+        if (!cancelled) setDetails(d);
       } catch (error) {
         console.error('Failed to load featured movie:', error);
       }
@@ -36,16 +118,18 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
     return () => {
       cancelled = true;
     };
-  }, [activeBase?.id]);
+  }, [activeId]);
 
   if (!activeBase) return null;
 
   const displayTitle = movie?.title ?? activeBase.title;
   const displayOverview = movie?.overview ?? activeBase.overview;
-  const displayBackdrop = movie?.backdrop_path ?? activeBase.backdrop_path;
   const displayRating = movie?.vote_average ?? activeBase.vote_average;
   const displayYear = (movie?.release_date ?? activeBase.release_date)?.slice(0, 4);
   const inWatchlist = isInWatchlist(activeBase.id);
+  const paused = hovered || focused || isPlaying;
+  const autoAdvance = count > 1 && !reduced;
+  const prevBase = prevIndex !== null ? featuredPool[prevIndex] : undefined;
 
   const trailer = movie?.videos?.results?.find(
     (video) =>
@@ -53,14 +137,66 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
       video.site === 'YouTube'
   );
 
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const s = touchStart.current;
+    touchStart.current = null;
+    if (!s || count < 2) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - s.x;
+    const dy = t.clientY - s.y;
+    if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      goTo(activeIndex + (dx < 0 ? 1 : -1));
+    }
+  };
+
+  const progressBar = (idx: number) => {
+    const done = idx < activeIndex;
+    const current = idx === activeIndex;
+    return (
+      <span className="block h-[3px] w-full overflow-hidden rounded-full bg-white/25">
+        <span
+          key={current ? `${activeBase.id}-${activeIndex}` : idx}
+          onAnimationEnd={() => {
+            if (current && autoAdvance) goTo(idx + 1);
+          }}
+          className={`block h-full origin-left rounded-full bg-brand ${
+            current && autoAdvance ? 'animate-progress' : ''
+          } ${done || (current && !autoAdvance) ? 'scale-x-100' : ''} ${
+            !current && !done ? 'scale-x-0' : ''
+          }`}
+          style={
+            current && autoAdvance
+              ? {
+                  animationDuration: `${SLIDE_MS}ms`,
+                  animationPlayState: paused ? 'paused' : 'running',
+                }
+              : undefined
+          }
+        />
+      </span>
+    );
+  };
+
   return (
     <section
       aria-label="Featured cinema"
-      className="relative w-full overflow-hidden bg-black min-h-[460px] sm:min-h-[540px] lg:min-h-[620px] xl:min-h-[680px] flex items-end border-b border-border"
+      aria-roledescription="carousel"
+      className="grain relative isolate flex h-[clamp(540px,86svh,780px)] w-full items-end overflow-hidden border-b border-border bg-black lg:h-[clamp(580px,80svh,820px)]"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
+      }}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     >
-      {/* Backdrop or Embedded Trailer */}
       {isPlaying && trailer ? (
-        <div className="absolute inset-0 z-10 bg-black">
+        <div className="absolute inset-0 z-30 animate-fade-in bg-black">
           <iframe
             src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&rel=0`}
             title={`${displayTitle} trailer`}
@@ -72,7 +208,7 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
             type="button"
             onClick={() => setIsPlaying(false)}
             aria-label="Close trailer"
-            className="absolute right-4 top-4 sm:right-6 sm:top-6 z-20 inline-flex items-center gap-1.5 rounded-full bg-black/80 px-3.5 py-2 text-xs font-semibold text-white backdrop-blur-md border border-white/15 hover:bg-black transition-colors cursor-pointer"
+            className="absolute right-4 top-4 z-40 inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full border border-white/20 bg-black/80 px-4 text-xs font-semibold text-white backdrop-blur-md transition-colors hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:right-6 sm:top-6"
           >
             <X className="h-4 w-4" />
             <span>Close Trailer</span>
@@ -80,138 +216,190 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
         </div>
       ) : (
         <>
-          {displayBackdrop ? (
-            <img
-              src={`https://image.tmdb.org/t/p/original${displayBackdrop}`}
-              alt={displayTitle}
-              className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-neutral-900" />
-          )}
-          {/* Multi-stop cinematic scrim */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent" />
+          {/* Backdrops: outgoing slide stays underneath while the new one blurs in */}
+          {prevBase && <Backdrop key={`prev-${prevBase.id}`} movie={prevBase} animate={false} />}
+          <Backdrop key={activeBase.id} movie={activeBase} animate={prevBase !== undefined} />
+
+          {/* Scrims: guarantee legible text on any image */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/25" aria-hidden="true" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent" aria-hidden="true" />
+          {/* Accent scan beam */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px overflow-hidden" aria-hidden="true">
+            <div className="h-full w-1/3 animate-scan bg-gradient-to-r from-transparent via-brand to-transparent" />
+          </div>
         </>
       )}
 
-      {/* Content Overlay aligned with main container */}
       {!isPlaying && (
-        <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-20 pb-8 sm:pb-12 lg:pb-14 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-          <div className="max-w-2xl">
-            {/* Metadata row */}
-            <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-medium text-white/85">
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 border border-amber-400/30 px-2.5 py-0.5 font-mono font-semibold text-amber-300 backdrop-blur-sm">
-                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                {displayRating ? displayRating.toFixed(1) : 'N/A'}
-              </span>
-              {displayYear && (
-                <span className="rounded-full bg-white/10 px-2.5 py-0.5 font-mono text-white/90 backdrop-blur-sm">
-                  {displayYear}
-                </span>
-              )}
-              {movie?.runtime ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5 font-mono text-white/90 backdrop-blur-sm">
-                  <Clock className="h-3 w-3" />
-                  {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
-                </span>
-              ) : null}
-              {movie?.genres?.slice(0, 3).map((g) => (
-                <span
-                  key={g.id}
-                  className="hidden sm:inline-flex rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-white/85 backdrop-blur-sm"
-                >
-                  {g.name}
-                </span>
-              ))}
-            </div>
-
-            {/* Hero Title */}
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.08] mb-3">
-              {displayTitle}
-            </h1>
-
-            {/* Synopsis */}
-            <p className="text-sm sm:text-base text-white/80 leading-relaxed line-clamp-3 sm:line-clamp-2 mb-6 max-w-xl">
-              {displayOverview}
-            </p>
-
-            {/* Primary Actions */}
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-              <button
-                type="button"
-                onClick={() => onMovieClick(activeBase.id)}
-                className="inline-flex items-center gap-2 rounded-full bg-brand hover:bg-brand-hover px-5 sm:px-7 py-3 text-sm font-semibold text-brand-foreground shadow-lg shadow-brand/25 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+        <div className="relative z-10 mx-auto flex w-full max-w-[1440px] items-end justify-between gap-10 px-4 pb-6 pt-24 sm:px-6 sm:pb-10 lg:px-8 lg:pb-14">
+          {/* Text column (re-keyed per slide so the stagger replays) */}
+          <div className="min-w-0 max-w-2xl flex-1" aria-live="polite">
+            <div key={activeBase.id} className="stagger">
+              <div
+                style={{ '--i': 0 } as React.CSSProperties}
+                className="mb-4 flex items-center gap-3 animate-fade-up"
               >
-                <Play className="h-4 w-4 fill-current" />
-                <span>Watch Now</span>
-              </button>
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/55 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-md">
+                  <span className="blip-dot" aria-hidden="true" />
+                  Now trending
+                  <Flame className="h-3 w-3 text-brand" aria-hidden="true" />
+                </span>
+                {count > 1 && (
+                  <span className="font-mono text-xs tabular-nums text-white/70">
+                    {String(activeIndex + 1).padStart(2, '0')}
+                    <span className="text-white/40"> / {String(count).padStart(2, '0')}</span>
+                  </span>
+                )}
+              </div>
 
-              {trailer && (
+              <h1
+                style={{ '--i': 1 } as React.CSSProperties}
+                className="animate-fade-up font-display text-4xl font-extrabold leading-[1.04] tracking-tight text-white [text-wrap:balance] sm:text-5xl lg:text-6xl xl:text-7xl"
+              >
+                {displayTitle}
+              </h1>
+
+              <div
+                style={{ '--i': 2 } as React.CSSProperties}
+                className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-white animate-fade-up"
+              >
+                {displayRating > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/55 px-2.5 py-1 font-mono font-semibold backdrop-blur-md">
+                    <Star className="h-3 w-3 fill-current text-gold" aria-hidden="true" />
+                    {displayRating.toFixed(1)}
+                  </span>
+                )}
+                {displayYear && (
+                  <span className="rounded-full border border-white/20 bg-black/55 px-2.5 py-1 font-mono backdrop-blur-md">
+                    {displayYear}
+                  </span>
+                )}
+                {movie?.runtime ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/55 px-2.5 py-1 font-mono backdrop-blur-md">
+                    <Clock className="h-3 w-3" aria-hidden="true" />
+                    {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
+                  </span>
+                ) : null}
+                {movie?.genres?.slice(0, 3).map((g) => (
+                  <span
+                    key={g.id}
+                    className="hidden rounded-full border border-white/20 bg-black/55 px-2.5 py-1 backdrop-blur-md sm:inline-flex"
+                  >
+                    {g.name}
+                  </span>
+                ))}
+              </div>
+
+              <p
+                style={{ '--i': 3 } as React.CSSProperties}
+                className="mt-4 max-w-xl animate-fade-up text-sm leading-relaxed text-white/90 line-clamp-3 sm:text-base"
+              >
+                {displayOverview}
+              </p>
+
+              <div
+                style={{ '--i': 4 } as React.CSSProperties}
+                className="mt-6 flex flex-wrap items-center gap-2.5 animate-fade-up sm:gap-3"
+              >
                 <button
                   type="button"
-                  onClick={() => setIsPlaying(true)}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 px-5 py-3 text-sm font-semibold text-white backdrop-blur-md transition-colors cursor-pointer"
+                  onClick={() => onMovieClick(activeBase.id)}
+                  className="shine group inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground shadow-lg shadow-brand-glow transition-all duration-300 ease-(--ease-out-expo) hover:scale-[1.04] hover:bg-brand-hover active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-8"
                 >
-                  <Film className="h-4 w-4" />
-                  <span>Trailer</span>
+                  <Play className="h-4 w-4 fill-current" aria-hidden="true" />
+                  <span>Watch Now</span>
                 </button>
-              )}
 
-              <Toggle
-                pressed={inWatchlist}
-                onPressedChange={() => toggleWatchlist(activeBase)}
-                aria-label={inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
-                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 px-4 py-3 text-sm font-medium text-white backdrop-blur-md transition-colors cursor-pointer data-pressed:bg-white data-pressed:text-black data-pressed:border-white"
-              >
-                {inWatchlist ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    <span className="hidden sm:inline">In Watchlist</span>
-                  </>
-                ) : (
-                  <>
-                    <Bookmark className="h-4 w-4" />
-                    <span className="hidden sm:inline">Watchlist</span>
-                  </>
+                {trailer && (
+                  <button
+                    type="button"
+                    onClick={() => setIsPlaying(true)}
+                    className="inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    <Film className="h-4 w-4" aria-hidden="true" />
+                    <span>Trailer</span>
+                  </button>
                 )}
-              </Toggle>
+
+                <Toggle
+                  pressed={inWatchlist}
+                  onPressedChange={() => toggleWatchlist(activeBase)}
+                  aria-label={inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
+                  className="inline-flex min-h-12 min-w-12 cursor-pointer items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 text-sm font-medium text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white data-pressed:border-white data-pressed:bg-white data-pressed:text-black"
+                >
+                  {inWatchlist ? (
+                    <>
+                      <Check key="on" className="h-4 w-4 animate-pop" aria-hidden="true" />
+                      <span className="hidden sm:inline">In Watchlist</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bookmark className="h-4 w-4" aria-hidden="true" />
+                      <span className="hidden sm:inline">Watchlist</span>
+                    </>
+                  )}
+                </Toggle>
+              </div>
             </div>
+
+            {/* Mobile / tablet: segmented progress */}
+            {count > 1 && (
+              <div
+                className="mt-6 flex items-center gap-2 lg:hidden"
+                role="tablist"
+                aria-label="Featured titles"
+              >
+                {featuredPool.map((item, idx) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={idx === activeIndex}
+                    aria-label={`Feature ${item.title}`}
+                    onClick={() => goTo(idx)}
+                    className="flex h-10 flex-1 cursor-pointer items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand"
+                  >
+                    {progressBar(idx)}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Featured Switcher Thumbnails */}
-          {featuredPool.length > 1 && (
+          {/* Desktop: thumbnail rail with per-slide progress */}
+          {count > 1 && (
             <div
-              className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1"
+              className="hidden w-64 shrink-0 flex-col gap-2.5 lg:flex xl:w-72"
               role="tablist"
               aria-label="Featured titles"
+              aria-orientation="vertical"
             >
               {featuredPool.map((item, idx) => {
-                const isSelected = idx === activeIndex;
+                const selected = idx === activeIndex;
                 return (
                   <button
                     key={item.id}
                     type="button"
                     role="tab"
-                    aria-selected={isSelected}
+                    aria-selected={selected}
                     aria-label={`Feature ${item.title}`}
-                    onClick={() => setActiveIndex(idx)}
-                    className={`relative h-12 w-20 sm:h-14 sm:w-24 shrink-0 overflow-hidden rounded-lg border-2 transition-all cursor-pointer ${
-                      isSelected
-                        ? 'border-brand scale-105 shadow-lg'
-                        : 'border-white/20 opacity-65 hover:opacity-100'
+                    onClick={() => goTo(idx)}
+                    style={{ '--i': idx } as React.CSSProperties}
+                    className={`group/t flex animate-slide-in-right cursor-pointer items-center gap-3 rounded-2xl border p-2 text-left backdrop-blur-md transition-all duration-500 ease-(--ease-out-expo) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${
+                      selected
+                        ? 'border-white/30 bg-black/65'
+                        : 'border-white/10 bg-black/40 opacity-80 hover:border-white/25 hover:opacity-100'
                     }`}
                   >
-                    {item.backdrop_path ? (
-                      <img
-                        src={`https://image.tmdb.org/t/p/w300${item.backdrop_path}`}
-                        alt={item.title}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-neutral-800" />
-                    )}
-                    <div className="absolute inset-0 bg-black/25" />
+                    <span className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-white/10">
+                      <Thumb path={item.backdrop_path} />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-display text-sm font-semibold text-white">
+                        {item.title}
+                      </span>
+                      <span className="mt-2 block">{progressBar(idx)}</span>
+                    </span>
                   </button>
                 );
               })}
