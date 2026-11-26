@@ -1,5 +1,10 @@
 import { FALLBACK_MOVIES } from '../data/fallbackMovies';
 import type { VideoResult } from '../types/movie';
+import {
+  DEFAULT_VIDEO_SOURCE,
+  VIDEO_SOURCES,
+  type VideoSourceId,
+} from '../config/videoSources';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -50,14 +55,18 @@ export async function fetchTrailer(movieId: string): Promise<VideoResult | null>
 export function getVideoUrl(
   type: 'movie' | 'tv',
   id: string | number,
-  options?: { season?: number; episode?: number }
+  options?: { season?: number; episode?: number; source?: VideoSourceId }
 ) {
-  // Always use TMDB ID for consistency
-  if (type === 'movie') {
-    return `https://vidsrc.xyz/embed/movie?tmdb=${id}`;
-  }
-  if (options?.season && options?.episode) {
-    return `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${options.season}&episode=${options.episode}`;
-  }
-  return `https://vidsrc.xyz/embed/tv?tmdb=${id}`;
+  const source = VIDEO_SOURCES[options?.source ?? DEFAULT_VIDEO_SOURCE];
+  const pattern =
+    type === 'movie'
+      ? source.movie
+      : options?.season && options?.episode
+        ? source.tvEpisode
+        : source.tv;
+
+  return pattern
+    .replace('{id}', String(id))
+    .replace('{season}', String(options?.season ?? ''))
+    .replace('{episode}', String(options?.episode ?? ''));
 }
