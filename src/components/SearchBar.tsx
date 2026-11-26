@@ -34,7 +34,7 @@ import { SHORTCUT_LABEL } from './nav/navItems';
 
 const ROW_ANIM = 'animate-[fade-up_420ms_var(--ease-out-expo)_both]';
 const ROW_BASE =
-  'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-foreground cursor-pointer transition-colors duration-150 data-highlighted:bg-surface-elevated before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-[3px] before:origin-center before:scale-y-0 before:rounded-full before:bg-brand before:transition-transform before:duration-300 before:ease-(--ease-out-expo) data-highlighted:before:scale-y-100';
+  'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-foreground cursor-pointer transition-colors duration-150 data-highlighted:bg-surface-elevated before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-[3px] before:origin-center before:scale-y-0 before:rounded-sm before:bg-brand before:transition-transform before:duration-300 before:ease-(--ease-out-expo) data-highlighted:before:scale-y-100';
 const GROUP_LABEL =
   'px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground';
 const delay = (i: number) => ({ animationDelay: `${i * 45}ms` });
@@ -131,7 +131,7 @@ export default function SearchBar({
           onClick={() => setIsOpen(true)}
           aria-label="Search movies"
           aria-keyshortcuts="Control+K Meta+K"
-          className="group hidden h-9 w-full items-center sm:flex gap-2.5 rounded-full border border-border bg-surface-elevated/70 px-3 text-sm text-muted-foreground transition-all duration-300 hover:border-border-strong hover:bg-surface-hover hover:text-foreground cursor-pointer sm:w-44 md:w-52 xl:w-72 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          className="group hidden h-9 w-full items-center sm:flex gap-2.5 rounded-sm border border-border bg-surface-elevated/70 px-3 text-sm text-muted-foreground transition-all duration-300 hover:border-border-strong hover:bg-surface-hover hover:text-foreground cursor-pointer sm:w-44 md:w-52 xl:w-72 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
           <Search className="h-4 w-4 shrink-0 transition-transform duration-300 ease-(--ease-spring) group-hover:scale-110 group-hover:text-brand" aria-hidden="true" />
           <span className="flex-1 truncate text-left">Search films&hellip;</span>
@@ -148,12 +148,12 @@ export default function SearchBar({
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsOpen(true)}
             placeholder="Search movies, directors, genres..."
-            className="w-full h-11 pl-11 pr-20 rounded-full border border-border bg-surface text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+            className="w-full h-11 pl-11 pr-20 rounded-sm border border-border bg-surface text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
           />
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-surface-elevated border border-border px-2.5 py-1 font-mono text-[11px] text-muted-foreground hover:text-foreground cursor-pointer"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-sm bg-surface-elevated border border-border px-2.5 py-1 font-mono text-[11px] text-muted-foreground hover:text-foreground cursor-pointer"
           >
             {SHORTCUT_LABEL}
           </button>
@@ -197,7 +197,7 @@ export default function SearchBar({
                   type="button"
                   onClick={() => setQuery('')}
                   aria-label="Clear search"
-                  className="rounded-full p-1.5 text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-brand"
+                  className="rounded-sm p-1.5 text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-brand"
                 >
                   <X className="h-4 w-4" aria-hidden="true" />
                 </button>
@@ -358,7 +358,7 @@ export default function SearchBar({
                             setIsOpen(false);
                           }}
                           style={{ animationDelay: `${150 + i * 25}ms` }}
-                          className="animate-[scale-in_380ms_var(--ease-out-expo)_both] rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-xs font-medium text-foreground transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/60 hover:bg-brand-soft hover:text-brand cursor-pointer focus-visible:outline-2 focus-visible:outline-brand"
+                          className="animate-[scale-in_380ms_var(--ease-out-expo)_both] rounded-sm border border-border bg-surface-elevated px-3 py-1.5 text-xs font-medium text-foreground transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/60 hover:bg-brand-soft hover:text-brand cursor-pointer focus-visible:outline-2 focus-visible:outline-brand"
                         >
                           {genre.name}
                         </button>

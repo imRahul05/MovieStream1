@@ -38,7 +38,7 @@ const DevelopmentBanner: React.FC<DevelopmentBannerProps> = ({
   return (
     <div
       role="status"
-      className={`fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 overflow-hidden rounded-3xl md:rounded-full border border-border-strong bg-glass text-xs text-foreground shadow-[0_16px_40px_-16px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-300 ease-(--ease-out-expo) md:inset-x-auto md:bottom-5 md:right-6 md:max-w-sm ${
+      className={`fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 overflow-hidden rounded-3xl md:rounded-sm border border-border-strong bg-glass text-xs text-foreground shadow-[0_16px_40px_-16px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-300 ease-(--ease-out-expo) md:inset-x-auto md:bottom-5 md:right-6 md:max-w-sm ${
         phase === 'out'
           ? 'translate-y-3 opacity-0'
           : 'animate-[fade-up_600ms_var(--ease-out-expo)_both] [animation-delay:600ms]'
@@ -51,7 +51,7 @@ const DevelopmentBanner: React.FC<DevelopmentBannerProps> = ({
           type="button"
           onClick={dismiss}
           aria-label="Dismiss tip"
-          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand"
+          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand"
         >
           <X className="h-3.5 w-3.5" aria-hidden="true" />
         </button>

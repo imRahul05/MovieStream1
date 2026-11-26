@@ -157,13 +157,13 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
     const done = idx < activeIndex;
     const current = idx === activeIndex;
     return (
-      <span className="block h-[3px] w-full overflow-hidden rounded-full bg-white/25">
+      <span className="block h-[3px] w-full overflow-hidden rounded-sm bg-white/25">
         <span
           key={current ? `${activeBase.id}-${activeIndex}` : idx}
           onAnimationEnd={() => {
             if (current && autoAdvance) goTo(idx + 1);
           }}
-          className={`block h-full origin-left rounded-full bg-brand ${
+          className={`block h-full origin-left rounded-sm bg-brand ${
             current && autoAdvance ? 'animate-progress' : ''
           } ${done || (current && !autoAdvance) ? 'scale-x-100' : ''} ${
             !current && !done ? 'scale-x-0' : ''
@@ -208,7 +208,7 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
             type="button"
             onClick={() => setIsPlaying(false)}
             aria-label="Close trailer"
-            className="absolute right-4 top-4 z-40 inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full border border-white/20 bg-black/80 px-4 text-xs font-semibold text-white backdrop-blur-md transition-colors hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:right-6 sm:top-6"
+            className="absolute right-4 top-4 z-40 inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-sm border border-white/20 bg-black/80 px-4 text-xs font-semibold text-white backdrop-blur-md transition-colors hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:right-6 sm:top-6"
           >
             <X className="h-4 w-4" />
             <span>Close Trailer</span>
@@ -239,7 +239,7 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
                 style={{ '--i': 0 } as React.CSSProperties}
                 className="mb-4 flex items-center gap-3 animate-fade-up"
               >
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/55 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-md">
+                <span className="inline-flex items-center gap-2 rounded-sm border border-white/20 bg-black/55 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-md">
                   <span className="blip-dot" aria-hidden="true" />
                   Now trending
                   <Flame className="h-3 w-3 text-brand" aria-hidden="true" />
@@ -264,18 +264,18 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
                 className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-white animate-fade-up"
               >
                 {displayRating > 0 && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/55 px-2.5 py-1 font-mono font-semibold backdrop-blur-md">
+                  <span className="inline-flex items-center gap-1 rounded-sm border border-white/20 bg-black/55 px-2.5 py-1 font-mono font-semibold backdrop-blur-md">
                     <Star className="h-3 w-3 fill-current text-gold" aria-hidden="true" />
                     {displayRating.toFixed(1)}
                   </span>
                 )}
                 {displayYear && (
-                  <span className="rounded-full border border-white/20 bg-black/55 px-2.5 py-1 font-mono backdrop-blur-md">
+                  <span className="rounded-sm border border-white/20 bg-black/55 px-2.5 py-1 font-mono backdrop-blur-md">
                     {displayYear}
                   </span>
                 )}
                 {movie?.runtime ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/55 px-2.5 py-1 font-mono backdrop-blur-md">
+                  <span className="inline-flex items-center gap-1 rounded-sm border border-white/20 bg-black/55 px-2.5 py-1 font-mono backdrop-blur-md">
                     <Clock className="h-3 w-3" aria-hidden="true" />
                     {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
                   </span>
@@ -283,7 +283,7 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
                 {movie?.genres?.slice(0, 3).map((g) => (
                   <span
                     key={g.id}
-                    className="hidden rounded-full border border-white/20 bg-black/55 px-2.5 py-1 backdrop-blur-md sm:inline-flex"
+                    className="hidden rounded-sm border border-white/20 bg-black/55 px-2.5 py-1 backdrop-blur-md sm:inline-flex"
                   >
                     {g.name}
                   </span>
@@ -304,7 +304,7 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
                 <button
                   type="button"
                   onClick={() => onMovieClick(activeBase.id)}
-                  className="shine group inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground shadow-lg shadow-brand-glow transition-all duration-300 ease-(--ease-out-expo) hover:scale-[1.04] hover:bg-brand-hover active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-8"
+                  className="shine group inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-sm bg-brand px-6 text-sm font-semibold text-brand-foreground shadow-lg shadow-brand-glow transition-all duration-300 ease-(--ease-out-expo) hover:scale-[1.04] hover:bg-brand-hover active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-8"
                 >
                   <Play className="h-4 w-4 fill-current" aria-hidden="true" />
                   <span>Watch Now</span>
@@ -314,7 +314,7 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
                   <button
                     type="button"
                     onClick={() => setIsPlaying(true)}
-                    className="inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    className="inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-sm border border-white/30 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                   >
                     <Film className="h-4 w-4" aria-hidden="true" />
                     <span>Trailer</span>
@@ -325,7 +325,7 @@ export default function FeaturedMovie({ movies, onMovieClick }: FeaturedMoviePro
                   pressed={inWatchlist}
                   onPressedChange={() => toggleWatchlist(activeBase)}
                   aria-label={inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
-                  className="inline-flex min-h-12 min-w-12 cursor-pointer items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 text-sm font-medium text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white data-pressed:border-white data-pressed:bg-white data-pressed:text-black"
+                  className="inline-flex min-h-12 min-w-12 cursor-pointer items-center justify-center gap-2 rounded-sm border border-white/30 bg-white/10 px-4 text-sm font-medium text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white data-pressed:border-white data-pressed:bg-white data-pressed:text-black"
                 >
                   {inWatchlist ? (
                     <>

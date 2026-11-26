@@ -11,7 +11,7 @@ interface LogoProps {
 export function LogoMark({ className = '' }: { className?: string }) {
   return (
     <span
-      className={`relative flex h-8 w-8 items-center justify-center rounded-[10px] bg-brand text-brand-foreground shadow-[0_6px_18px_-6px_var(--brand-glow)] transition-transform duration-500 ease-(--ease-spring) group-hover:-rotate-6 group-hover:scale-110 ${className}`}
+      className={`relative flex h-8 w-8 items-center justify-center rounded-sm bg-brand text-brand-foreground shadow-[0_6px_18px_-6px_var(--brand-glow)] transition-transform duration-500 ease-(--ease-spring) group-hover:-rotate-6 group-hover:scale-110 ${className}`}
     >
       <Film className="h-4 w-4" aria-hidden="true" />
       <span

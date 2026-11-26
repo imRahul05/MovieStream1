@@ -83,7 +83,7 @@ function DesktopNav({ currentSection, onSectionChange, count }: DesktopNavProps)
     >
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 -z-10 h-9 -translate-y-1/2 rounded-full border border-border-strong bg-surface-elevated"
+        className="pointer-events-none absolute top-1/2 -z-10 h-9 -translate-y-1/2 rounded-sm border border-border-strong bg-surface-elevated"
         style={{
           left: pill?.left ?? 0,
           width: pill?.width ?? 0,
@@ -109,7 +109,7 @@ function DesktopNav({ currentSection, onSectionChange, count }: DesktopNavProps)
             type="button"
             onClick={() => onSectionChange(item.id)}
             aria-current={active ? 'page' : undefined}
-            className={`group relative inline-flex h-9 items-center gap-2 rounded-full px-3 xl:px-3.5 text-sm font-medium transition-colors duration-300 cursor-pointer ${FOCUS_RING} ${
+            className={`group relative inline-flex h-9 items-center gap-2 rounded-sm px-3 xl:px-3.5 text-sm font-medium transition-colors duration-300 cursor-pointer ${FOCUS_RING} ${
               active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -223,7 +223,7 @@ export default function Sidebar({
     };
   }, []);
 
-  const iconButton = `inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface-elevated/70 text-foreground hover:bg-surface-hover hover:border-border-strong active:scale-90 transition-all duration-200 cursor-pointer ${FOCUS_RING}`;
+  const iconButton = `inline-flex h-9 w-9 items-center justify-center rounded-sm border border-border bg-surface-elevated/70 text-foreground hover:bg-surface-hover hover:border-border-strong active:scale-90 transition-all duration-200 cursor-pointer ${FOCUS_RING}`;
 
   return (
     <>
@@ -256,7 +256,7 @@ export default function Sidebar({
               <DrawerContent className="relative z-50 flex h-full w-80 max-w-[85vw] flex-col overflow-hidden rounded-r-3xl border-r border-border-strong bg-surface p-5 pb-safe shadow-2xl">
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-brand-soft blur-3xl"
+                  className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-sm bg-brand-soft blur-3xl"
                 />
 
                 <div className="relative flex items-center justify-between border-b border-border pb-5">
@@ -268,7 +268,7 @@ export default function Sidebar({
                   </div>
                   <DrawerClose
                     aria-label="Close navigation menu"
-                    className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-hover hover:text-foreground hover:rotate-90 transition-all duration-300 cursor-pointer ${FOCUS_RING}`}
+                    className={`inline-flex h-9 w-9 items-center justify-center rounded-sm text-muted-foreground hover:bg-surface-hover hover:text-foreground hover:rotate-90 transition-all duration-300 cursor-pointer ${FOCUS_RING}`}
                   >
                     <X className="h-4 w-4" aria-hidden="true" />
                   </DrawerClose>
@@ -296,7 +296,7 @@ export default function Sidebar({
                       >
                         <span
                           aria-hidden="true"
-                          className={`absolute left-0 top-2.5 bottom-2.5 w-[3px] rounded-full bg-brand transition-transform duration-500 ease-(--ease-out-expo) origin-center ${
+                          className={`absolute left-0 top-2.5 bottom-2.5 w-[3px] rounded-sm bg-brand transition-transform duration-500 ease-(--ease-out-expo) origin-center ${
                             active ? 'scale-y-100' : 'scale-y-0'
                           }`}
                         />
@@ -378,7 +378,7 @@ export default function Sidebar({
               href={PORTFOLIO_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className={`hidden 2xl:inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-surface-elevated/70 px-3.5 text-xs font-semibold text-foreground hover:bg-surface-hover hover:border-border-strong transition-colors ${FOCUS_RING}`}
+              className={`hidden 2xl:inline-flex h-9 items-center gap-1.5 rounded-sm border border-border bg-surface-elevated/70 px-3.5 text-xs font-semibold text-foreground hover:bg-surface-hover hover:border-border-strong transition-colors ${FOCUS_RING}`}
             >
               <span>Portfolio</span>
               <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />

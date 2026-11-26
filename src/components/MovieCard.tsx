@@ -48,7 +48,7 @@ export default function MovieCard({ movie, onClick }: MovieCardProps) {
             />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-4 text-center text-muted-foreground">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-border-strong bg-surface">
+              <span className="flex h-12 w-12 items-center justify-center rounded-sm border border-border-strong bg-surface">
                 <Film className="h-5 w-5 text-brand" />
               </span>
               <span className="font-display text-sm font-semibold leading-snug text-foreground line-clamp-3">
@@ -59,7 +59,7 @@ export default function MovieCard({ movie, onClick }: MovieCardProps) {
 
           {/* Hover scrim + play */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
-            <span className="flex h-12 w-12 scale-50 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-lg shadow-brand-glow transition-transform duration-500 ease-(--ease-spring) group-hover:scale-100 group-focus-within:scale-100">
+            <span className="flex h-12 w-12 scale-50 items-center justify-center rounded-sm bg-brand text-brand-foreground shadow-lg shadow-brand-glow transition-transform duration-500 ease-(--ease-spring) group-hover:scale-100 group-focus-within:scale-100">
               <Play className="ml-0.5 h-5 w-5 fill-current" />
             </span>
           </div>
@@ -67,7 +67,7 @@ export default function MovieCard({ movie, onClick }: MovieCardProps) {
 
         {/* Rating chip */}
         {movie.vote_average > 0 && (
-          <div className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-1 rounded-full border border-border-strong bg-surface/90 px-2 py-1 font-mono text-[11px] font-semibold leading-none text-gold backdrop-blur-md">
+          <div className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-1 rounded-sm border border-border-strong bg-surface/90 px-2 py-1 font-mono text-[11px] font-semibold leading-none text-gold backdrop-blur-md">
             <Star className="h-2.5 w-2.5 fill-current" />
             <span>{movie.vote_average.toFixed(1)}</span>
           </div>
@@ -83,11 +83,11 @@ export default function MovieCard({ movie, onClick }: MovieCardProps) {
               ? `Remove ${movie.title} from watchlist`
               : `Add ${movie.title} to watchlist`
           }
-          className="group/wl absolute right-1 top-1 inline-flex h-10 w-10 items-center justify-center rounded-full cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand"
+          className="group/wl absolute right-1 top-1 inline-flex h-10 w-10 items-center justify-center rounded-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand"
         >
           <span
             key={String(inWatchlist)}
-            className={`flex h-8 w-8 items-center justify-center rounded-full border text-white backdrop-blur-md transition-colors group-hover/wl:bg-black/90 ${
+            className={`flex h-8 w-8 items-center justify-center rounded-sm border text-white backdrop-blur-md transition-colors group-hover/wl:bg-black/90 ${
               inWatchlist
                 ? 'animate-pop border-brand bg-brand text-brand-foreground'
                 : 'border-white/20 bg-black/70'

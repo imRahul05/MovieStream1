@@ -74,7 +74,7 @@ export default function MovieGrid({
   }, [movies, sortBy, selectedGenre]);
 
   const chipBase =
-    'shrink-0 min-h-9 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-300 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand';
+    'shrink-0 min-h-9 rounded-sm px-4 py-1.5 text-xs font-medium transition-all duration-300 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand';
   const chipIdle =
     'border border-border bg-surface text-muted-foreground hover:border-border-strong hover:text-foreground hover:bg-surface-hover';
 
@@ -91,7 +91,7 @@ export default function MovieGrid({
             <h2 className="font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
               {title}
             </h2>
-            <span className="rounded-full border border-border bg-surface-elevated px-2.5 py-0.5 font-mono text-xs text-muted-foreground">
+            <span className="rounded-sm border border-border bg-surface-elevated px-2.5 py-0.5 font-mono text-xs text-muted-foreground">
               {displayedMovies.length}
             </span>
           </div>
@@ -115,7 +115,7 @@ export default function MovieGrid({
             >
               <SelectTrigger
                 aria-label="Sort movies"
-                className="inline-flex h-10 min-w-[170px] cursor-pointer items-center justify-between gap-2 rounded-full border border-border-strong bg-surface px-4 text-xs font-medium text-foreground transition-colors hover:bg-surface-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="inline-flex h-10 min-w-[170px] cursor-pointer items-center justify-between gap-2 rounded-sm border border-border-strong bg-surface px-4 text-xs font-medium text-foreground transition-colors hover:bg-surface-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 <span className="inline-flex items-center gap-2">
                   <SlidersHorizontal className="h-3.5 w-3.5 text-brand" />
@@ -216,7 +216,7 @@ export default function MovieGrid({
                 setSelectedGenre(null);
                 setSortBy('default');
               }}
-              className="mt-4 min-h-10 cursor-pointer rounded-full bg-brand px-5 text-xs font-semibold text-brand-foreground transition-colors hover:bg-brand-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              className="mt-4 min-h-10 cursor-pointer rounded-sm bg-brand px-5 text-xs font-semibold text-brand-foreground transition-colors hover:bg-brand-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
               Reset Filters
             </button>

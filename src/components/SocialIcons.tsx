@@ -20,7 +20,7 @@ const SocialIcons: React.FC = () => {
             target="_blank"
             rel="noopener noreferrer"
             style={{ transitionDelay: `${i * 12}ms` }}
-            className="group inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface-elevated text-muted-foreground transition-all duration-300 ease-(--ease-spring) hover:-translate-y-1 hover:border-brand hover:bg-brand-soft hover:text-brand hover:shadow-[0_10px_22px_-10px_var(--brand-glow)] active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="group inline-flex h-10 w-10 items-center justify-center rounded-sm border border-border bg-surface-elevated text-muted-foreground transition-all duration-300 ease-(--ease-spring) hover:-translate-y-1 hover:border-brand hover:bg-brand-soft hover:text-brand hover:shadow-[0_10px_22px_-10px_var(--brand-glow)] active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <Icon size={16} className="transition-transform duration-300 group-hover:scale-110" />
           </a>

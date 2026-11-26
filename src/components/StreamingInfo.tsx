@@ -39,8 +39,8 @@ export default function StreamingInfo({ watchProviders }: StreamingInfoProps) {
   if (!watchProviders) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border-strong py-10 text-center text-muted-foreground">
-        <span className="relative mb-3 grid h-11 w-11 place-items-center rounded-full bg-brand-soft text-brand">
-          <span className="animate-blip absolute inset-0 rounded-full bg-brand/30" aria-hidden="true" />
+        <span className="relative mb-3 grid h-11 w-11 place-items-center rounded-sm bg-brand-soft text-brand">
+          <span className="animate-blip absolute inset-0 rounded-[inherit] bg-brand/30" aria-hidden="true" />
           <Tv className="relative h-5 w-5" aria-hidden="true" />
         </span>
         <p className="text-sm font-medium text-foreground">No regional streaming providers listed</p>

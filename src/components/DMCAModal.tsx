@@ -34,7 +34,7 @@ const DMCAModal: React.FC<DMCAModalProps> = ({ isOpen, onClose }) => {
           </div>
           <DialogClose
             aria-label="Close DMCA Notice"
-            className={`inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-300 hover:rotate-90 hover:bg-surface-hover hover:text-foreground ${focusRing}`}
+            className={`inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-sm border border-border text-muted-foreground transition-all duration-300 hover:rotate-90 hover:bg-surface-hover hover:text-foreground ${focusRing}`}
           >
             <X className="h-4 w-4" aria-hidden="true" />
           </DialogClose>
@@ -79,7 +79,7 @@ const DMCAModal: React.FC<DMCAModalProps> = ({ isOpen, onClose }) => {
               dmca@coen.ovh
             </a>
           </p>
-          <DialogClose className={`inline-flex cursor-pointer items-center justify-center rounded-full bg-brand px-5 py-2.5 text-xs font-semibold text-brand-foreground transition-all duration-300 hover:bg-brand-hover hover:shadow-[0_0_24px_var(--brand-glow)] active:scale-95 ${focusRing}`}>
+          <DialogClose className={`inline-flex cursor-pointer items-center justify-center rounded-sm bg-brand px-5 py-2.5 text-xs font-semibold text-brand-foreground transition-all duration-300 hover:bg-brand-hover hover:shadow-[0_0_24px_var(--brand-glow)] active:scale-95 ${focusRing}`}>
             Close Notice
           </DialogClose>
         </div>

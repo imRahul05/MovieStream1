@@ -23,7 +23,7 @@
   --gold: #a16207;
   --ring: rgba(210, 74, 14, 0.45);
   --glass: rgba(247, 247, 248, 0.78);
-  --radius: 0.875rem;
+  --radius: 0.25rem;
 }
 
 .dark {
@@ -90,6 +90,16 @@
   --color-gold: var(--gold);
   --color-ring: var(--ring);
   --color-glass: var(--glass);
+
+  /* Boxy radius scale — sharp, editorial corners (UI SDK default is 0) */
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 5px;
+  --radius-3xl: 6px;
+  --radius-4xl: 6px;
 
   /* Motion tokens — use as `ease-(--ease-out-expo)` etc. */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -287,7 +297,7 @@
   display: inline-block;
   width: 0.5rem;
   height: 0.5rem;
-  border-radius: 9999px;
+  border-radius: 1px;
   background: var(--brand);
 }
 .blip-dot::after {

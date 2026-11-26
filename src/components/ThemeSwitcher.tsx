@@ -43,7 +43,7 @@ export default function ThemeSwitcher({
   if (!mounted) {
     return (
       <div
-        className={`skeleton h-9 rounded-full border border-border ${compact ? 'w-9' : 'w-28'}`}
+        className={`skeleton h-9 rounded-sm border border-border ${compact ? 'w-9' : 'w-28'}`}
         aria-hidden="true"
       />
     );
@@ -60,7 +60,7 @@ export default function ThemeSwitcher({
         onClick={() => setTheme(NEXT_THEME[currentTheme] ?? 'black')}
         title={`Theme: ${active.label} (click to switch)`}
         aria-label={`Current theme ${active.label}. Switch theme`}
-        className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface-elevated/70 text-foreground hover:bg-surface-hover hover:border-border-strong active:scale-90 transition-all duration-200 cursor-pointer ${FOCUS}`}
+        className={`relative inline-flex h-9 w-9 items-center justify-center rounded-sm border border-border bg-surface-elevated/70 text-foreground hover:bg-surface-hover hover:border-border-strong active:scale-90 transition-all duration-200 cursor-pointer ${FOCUS}`}
       >
         {THEME_OPTIONS.map(({ value, icon: Icon }) => {
           const on = value === currentTheme;
@@ -88,15 +88,15 @@ export default function ThemeSwitcher({
       onValueChange={(next) => {
         if (next) setTheme(next);
       }}
-      className="rounded-full border border-border bg-surface-elevated/70 p-0.5 text-xs font-medium"
+      className="rounded-sm border border-border bg-surface-elevated/70 p-0.5 text-xs font-medium"
     >
-      <SegmentedControlIndicator className="rounded-full border border-border-strong bg-surface shadow-sm" />
+      <SegmentedControlIndicator className="rounded-sm border border-border-strong bg-surface shadow-sm" />
       {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
         <SegmentedControlItem
           key={value}
           value={value}
           aria-label={`${label} theme`}
-          className={`group relative inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-muted-foreground transition-colors duration-300 cursor-pointer hover:text-foreground data-checked:text-foreground ${FOCUS}`}
+          className={`group relative inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-muted-foreground transition-colors duration-300 cursor-pointer hover:text-foreground data-checked:text-foreground ${FOCUS}`}
         >
           <Icon
             className="h-3.5 w-3.5 transition-all duration-500 ease-(--ease-spring) group-data-checked:rotate-[360deg] group-data-checked:scale-110 group-data-checked:text-brand"

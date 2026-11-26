@@ -59,7 +59,7 @@ export default function VideoPlayer({
   const showPoster = !!posterPath && !imgFailed;
 
   const chip = (active: boolean) =>
-    `inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-300 ease-(--ease-out-expo) cursor-pointer ${focusRing} ${
+    `inline-flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 text-xs font-semibold transition-all duration-300 ease-(--ease-out-expo) cursor-pointer ${focusRing} ${
       active
         ? 'bg-brand text-brand-foreground shadow-[0_0_18px_var(--brand-glow)]'
         : 'text-muted-foreground hover:text-foreground hover:bg-surface-hover'
@@ -112,10 +112,10 @@ export default function VideoPlayer({
               type="button"
               onClick={() => setMode('stream')}
               aria-label={`Watch ${mediaType === 'movie' ? 'movie' : 'episode'}`}
-              className={`group/play absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full ${focusRing} animate-pop`}
+              className={`group/play absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-sm ${focusRing} animate-pop`}
             >
-              <span className="relative grid size-16 place-items-center rounded-full bg-brand text-brand-foreground shadow-[0_0_44px_var(--brand-glow)] transition-transform duration-300 ease-(--ease-spring) group-hover/play:scale-110 sm:size-20">
-                <span className="animate-blip absolute inset-0 rounded-full bg-brand" aria-hidden="true" />
+              <span className="relative grid size-16 place-items-center rounded-sm bg-brand text-brand-foreground shadow-[0_0_44px_var(--brand-glow)] transition-transform duration-300 ease-(--ease-spring) group-hover/play:scale-110 sm:size-20">
+                <span className="animate-blip absolute inset-0 rounded-[inherit] bg-brand" aria-hidden="true" />
                 <Play className="relative h-6 w-6 translate-x-0.5 fill-current sm:h-7 sm:w-7" aria-hidden="true" />
               </span>
             </button>
@@ -143,7 +143,7 @@ export default function VideoPlayer({
         <div
           role="group"
           aria-label="Playback source"
-          className="inline-flex items-center gap-1 rounded-full border border-border bg-surface-elevated p-1"
+          className="inline-flex items-center gap-1 rounded-sm border border-border bg-surface-elevated p-1"
         >
           <button
             type="button"

@@ -61,7 +61,7 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
         {/* Close button: lives outside the scroller so it is always reachable */}
         <DialogClose
           aria-label="Close movie details"
-          className={`group absolute right-3 top-[max(0.75rem,env(safe-area-inset-top))] z-30 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-md transition-all duration-300 ease-(--ease-out-expo) hover:scale-110 hover:bg-black/80 sm:right-4 sm:top-4 ${focusRing}`}
+          className={`group absolute right-3 top-[max(0.75rem,env(safe-area-inset-top))] z-30 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-sm border border-white/20 bg-black/60 text-white backdrop-blur-md transition-all duration-300 ease-(--ease-out-expo) hover:scale-110 hover:bg-black/80 sm:right-4 sm:top-4 ${focusRing}`}
         >
           <X className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" aria-hidden="true" />
         </DialogClose>
@@ -119,7 +119,7 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
                     style={stagger(2)}
                   >
                     {movie.release_date && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-foreground">
+                      <span className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface-elevated px-3 py-1.5 text-foreground">
                         <Calendar className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
                         {new Date(movie.release_date).toLocaleDateString(undefined, {
                           year: 'numeric',
@@ -129,7 +129,7 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
                       </span>
                     )}
                     {movie.runtime > 0 && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-foreground">
+                      <span className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface-elevated px-3 py-1.5 text-foreground">
                         <Clock className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
                         {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
                       </span>
@@ -141,7 +141,7 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
                       {movie.genres.map((genre, i) => (
                         <span
                           key={genre.id}
-                          className="animate-fade-up rounded-full border border-border-strong px-3 py-1 text-xs font-medium text-muted-foreground"
+                          className="animate-fade-up rounded-sm border border-border-strong px-3 py-1 text-xs font-medium text-muted-foreground"
                           style={stagger(3 + i)}
                         >
                           {genre.name}
@@ -159,7 +159,7 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
                   <Toggle
                     pressed={inWatchlist}
                     onPressedChange={() => toggleWatchlist(movie)}
-                    className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-border-strong bg-surface-elevated px-4 py-2.5 text-xs font-semibold text-foreground transition-all duration-300 hover:bg-surface-hover active:scale-95 data-pressed:border-brand data-pressed:bg-brand data-pressed:text-brand-foreground data-pressed:shadow-[0_0_24px_var(--brand-glow)] max-sm:flex-1 ${focusRing}`}
+                    className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm border border-border-strong bg-surface-elevated px-4 py-2.5 text-xs font-semibold text-foreground transition-all duration-300 hover:bg-surface-hover active:scale-95 data-pressed:border-brand data-pressed:bg-brand data-pressed:text-brand-foreground data-pressed:shadow-[0_0_24px_var(--brand-glow)] max-sm:flex-1 ${focusRing}`}
                   >
                     <span key={String(inWatchlist)} className="animate-pop inline-flex" aria-hidden="true">
                       {inWatchlist ? <Check className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
@@ -215,7 +215,7 @@ export default function MovieDetailsModal({ movie, onClose }: MovieDetailsModalP
                               style={{ '--i': i } as React.CSSProperties}
                               className="animate-fade-up flex min-w-0 flex-col items-center rounded-2xl border border-border bg-surface-elevated/60 p-3 text-center transition-all duration-300 ease-(--ease-out-expo) hover:-translate-y-1 hover:border-border-strong"
                             >
-                              <div className="mb-2.5 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-border-strong bg-surface">
+                              <div className="mb-2.5 flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm border border-border-strong bg-surface">
                                 {actor.profile_path ? (
                                   <img
                                     src={`https://image.tmdb.org/t/p/w185${actor.profile_path}`}

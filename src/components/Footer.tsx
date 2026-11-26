@@ -118,7 +118,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <button
               type="button"
               onClick={() => setIsDMCAModalOpen(true)}
-              className={`inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-elevated px-3.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-brand/50 hover:text-brand cursor-pointer ${FOCUS_RING}`}
+              className={`inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface-elevated px-3.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-brand/50 hover:text-brand cursor-pointer ${FOCUS_RING}`}
             >
               <ShieldAlert className="h-3.5 w-3.5" aria-hidden="true" />
               <span>DMCA Notice</span>
@@ -127,7 +127,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               aria-label="Back to top"
-              className={`group inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface-elevated text-muted-foreground transition-all duration-300 ease-(--ease-spring) hover:-translate-y-1 hover:border-brand hover:text-brand cursor-pointer ${FOCUS_RING}`}
+              className={`group inline-flex h-9 w-9 items-center justify-center rounded-sm border border-border bg-surface-elevated text-muted-foreground transition-all duration-300 ease-(--ease-spring) hover:-translate-y-1 hover:border-brand hover:text-brand cursor-pointer ${FOCUS_RING}`}
             >
               <ArrowUp className="h-4 w-4" aria-hidden="true" />
             </button>

@@ -30,11 +30,11 @@ const NewsletterForm: React.FC = () => {
         role="status"
         className="flex items-center gap-3 rounded-2xl border border-brand/40 bg-brand-soft px-4 py-3 text-sm font-medium text-foreground animate-scale-in"
       >
-        <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground animate-pop">
+        <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-brand text-brand-foreground animate-pop">
           <Check className="h-4 w-4" aria-hidden="true" />
           <span
             aria-hidden="true"
-            className="absolute inset-0 rounded-full border-2 border-brand animate-blip"
+            className="absolute inset-0 rounded-[inherit] border-2 border-brand animate-blip"
           />
         </span>
         <span>You&rsquo;re on the list. Thanks for subscribing.</span>
@@ -44,7 +44,7 @@ const NewsletterForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2" noValidate={false}>
-      <div className="group/field flex items-center gap-1 rounded-full border border-border bg-surface-elevated p-1 transition-all duration-300 focus-within:border-brand focus-within:shadow-[0_0_0_4px_var(--brand-soft),0_8px_30px_-10px_var(--brand-glow)]">
+      <div className="group/field flex items-center gap-1 rounded-sm border border-border bg-surface-elevated p-1 transition-all duration-300 focus-within:border-brand focus-within:shadow-[0_0_0_4px_var(--brand-soft),0_8px_30px_-10px_var(--brand-glow)]">
         <input
           type="email"
           placeholder="you@example.com"
@@ -58,7 +58,7 @@ const NewsletterForm: React.FC = () => {
         <button
           type="submit"
           disabled={status === 'pending'}
-          className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full bg-brand px-4 text-xs font-semibold text-brand-foreground transition-all duration-200 cursor-pointer hover:bg-brand-hover hover:shadow-[0_6px_18px_-6px_var(--brand-glow)] active:scale-95 disabled:cursor-wait disabled:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-sm bg-brand px-4 text-xs font-semibold text-brand-foreground transition-all duration-200 cursor-pointer hover:bg-brand-hover hover:shadow-[0_6px_18px_-6px_var(--brand-glow)] active:scale-95 disabled:cursor-wait disabled:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
           {status === 'pending' ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />

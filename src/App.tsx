@@ -119,7 +119,7 @@ function App() {
   }) => (
     <div className="relative my-10 flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-dashed border-border-strong bg-surface px-6 py-14 text-center sm:my-14 sm:py-20">
       <div
-        className="pointer-events-none absolute left-1/2 top-0 h-48 w-72 -translate-x-1/2 rounded-full bg-brand-soft blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-0 h-48 w-72 -translate-x-1/2 rounded-sm bg-brand-soft blur-3xl"
         aria-hidden="true"
       />
       <div className="relative mb-6 animate-float">
@@ -137,7 +137,7 @@ function App() {
       <button
         type="button"
         onClick={onCta}
-        className="shine relative mt-7 min-h-11 cursor-pointer rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground shadow-lg shadow-brand-glow transition-all duration-300 hover:scale-[1.04] hover:bg-brand-hover active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+        className="shine relative mt-7 min-h-11 cursor-pointer rounded-sm bg-brand px-6 text-sm font-semibold text-brand-foreground shadow-lg shadow-brand-glow transition-all duration-300 hover:scale-[1.04] hover:bg-brand-hover active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
         {cta}
       </button>
@@ -153,7 +153,7 @@ function App() {
           <button
             type="button"
             onClick={() => handleSectionChange('home')}
-            className="group mb-2 inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full border border-border-strong bg-surface px-4 text-xs font-medium text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="group mb-2 inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-sm border border-border-strong bg-surface px-4 text-xs font-medium text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
             <span>Back to Home</span>
@@ -237,7 +237,7 @@ function App() {
                 <button
                   type="button"
                   onClick={() => handleSectionChange('trending')}
-                  className="group inline-flex min-h-10 cursor-pointer items-center gap-1 rounded-full px-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                  className="group inline-flex min-h-10 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
                   <span>View All</span>
                   <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -255,7 +255,7 @@ function App() {
                 <button
                   type="button"
                   onClick={() => handleSectionChange('top-rated')}
-                  className="group inline-flex min-h-10 cursor-pointer items-center gap-1 rounded-full px-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                  className="group inline-flex min-h-10 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
                   <span>View All</span>
                   <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -296,10 +296,10 @@ function App() {
             aria-label="Loading featured film"
           >
             <div className="mx-auto w-full max-w-[1440px] space-y-4 px-4 pb-10 sm:px-6 lg:px-8">
-              <div className="h-7 w-36 rounded-full bg-surface-hover/70" />
+              <div className="h-7 w-36 rounded-sm bg-surface-hover/70" />
               <div className="h-12 w-3/4 max-w-xl rounded-xl bg-surface-hover/70" />
               <div className="h-4 w-full max-w-md rounded-md bg-surface-hover/70" />
-              <div className="h-12 w-40 rounded-full bg-surface-hover/70" />
+              <div className="h-12 w-40 rounded-sm bg-surface-hover/70" />
             </div>
           </div>
         ) : trending.length > 0 ? (

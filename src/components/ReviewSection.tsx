@@ -47,7 +47,7 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
         <div className="flex min-w-0 items-center gap-3">
           <span
             aria-hidden="true"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft font-display text-xs font-bold text-brand ring-1 ring-brand/30"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-brand-soft font-display text-xs font-bold text-brand ring-1 ring-brand/30"
           >
             {initials(review.author)}
           </span>
@@ -60,7 +60,7 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
         </div>
         {!!review.rating && (
           <div
-            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 font-mono text-xs font-semibold text-gold"
+            className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-border bg-surface px-2.5 py-1 font-mono text-xs font-semibold text-gold"
             aria-label={`Rated ${review.rating}`}
           >
             <Star className="h-3 w-3 fill-current" aria-hidden="true" />
